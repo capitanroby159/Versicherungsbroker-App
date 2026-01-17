@@ -48,57 +48,53 @@
   flex-shrink: 0;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 .modal-header h3 {
-  margin: 0;
-  color: #333;
+  margin: 0 0 5px 0;
   font-size: 20px;
+  color: #333;
 }
 
 .modal-subtitle {
-  margin: 4px 0 0 0;
+  margin: 0;
+  color: #666;
   font-size: 13px;
-  color: #999;
-  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.button-edit,
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.button-edit {
+  background: #667eea;
+  color: white;
+  font-weight: 600;
+}
+
+.button-edit:hover {
+  background: #764ba2;
+  transform: translateY(-2px);
 }
 
 .close-button {
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
   color: #999;
-  transition: color 0.3s;
-  flex-shrink: 0;
+  font-size: 20px;
 }
 
 .close-button:hover {
   color: #333;
-}
-
-.button-edit {
-  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  transition: all 0.3s;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.button-edit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+  background: #f0f0f0;
 }
 
 @keyframes slideUp {
@@ -112,6 +108,99 @@
   }
 }
 
+/* ===== KPI SECTION (FROM IMMOBILIENSTAB - WORKING!) ===== */
+.kpi-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 25px;
+  padding: 20px;
+  padding-bottom: 25px;
+  background: white;
+  border-radius: 8px;
+  border-bottom: 2px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-card {
+  padding: 15px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+  text-align: center;
+}
+
+.kpi-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.kpi-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* ===== HYPOTHEKEN SUMMARY DASHBOARD ===== */
+.hypo-summary-dashboard {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.hypo-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border-left: 4px solid #0284c7;
+  text-align: center;
+}
+
+.hypo-stat-card span {
+  font-size: 10px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.hypo-stat-card strong {
+  font-size: 13px;
+  color: #333;
+  font-weight: 700;
+}
+
+/* FIELDSET STYLING */
+fieldset {
+  border: none;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+legend {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  padding: 0 5px;
+}
+
 /* CONTENT AREA */
 .modal-content {
   flex: 1;
@@ -119,16 +208,30 @@
   margin-bottom: 25px;
   min-height: 0;
   padding-right: 15px;
+  width: 100%;
+  padding: 20px 30px 0 30px;
 }
 
 .form-container {
   padding: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* SELECT STYLING */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
 /* FORM STYLING */
@@ -145,7 +248,8 @@
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -154,53 +258,156 @@
   transition: border-color 0.3s;
 }
 
+.form-group .form-display {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9fafb;
+  color: #333;
+  font-size: 13px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
 .form-group input:focus,
-.form-group select:focus {
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-/* READONLY & DISABLED FIELDS */
-.form-group input[readOnly] {
-  background: #f5f5f5;
-  color: #666;
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #f5f5f5;
+  color: #999;
   cursor: not-allowed;
-  border-color: #ddd;
 }
 
-.form-group input[readOnly]:focus {
-  box-shadow: none;
-  border-color: #ddd;
+/* INFO SECTION */
+.info-section {
+  padding: 12px;
+  background: #e8f4f8;
+  border-radius: 4px;
+  border-left: 3px solid #0284c7;
+  margin-top: 10px;
 }
 
-.form-group select[disabled] {
-  background: #f5f5f5;
-  color: #666;
-  cursor: not-allowed;
-  opacity: 0.7;
+.info-section p {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #333;
 }
 
-/* MODAL ACTIONS */
+/* ===== HYPOTHEKEN ===== */
+.hypo-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.hypo-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #0284c7;
+  gap: 10px;
+}
+
+.hypo-info {
+  flex: 1;
+}
+
+.hypo-info div {
+  font-size: 12px;
+  margin: 3px 0;
+  color: #333;
+}
+
+.hypo-info div:first-child {
+  font-weight: 600;
+  color: #667eea;
+}
+
+.hypo-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: auto;
+}
+
+.hypo-btn-edit,
+.hypo-btn-delete {
+  background: #f0f0f0;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.hypo-btn-edit:hover {
+  background: #667eea;
+  color: white;
+}
+
+.hypo-btn-delete:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.button-hypo-new {
+  width: 100%;
+  padding: 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.button-hypo-new:hover {
+  background: #764ba2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* ===== MODAL ACTIONS ===== */
 .modal-actions {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
-  padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
   flex-shrink: 0;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
 }
 
 .button-primary {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
   font-size: 14px;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .button-primary:hover {
@@ -212,40 +419,22 @@
   background: #f0f0f0;
   color: #333;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
   font-size: 14px;
-  transition: background 0.3s;
+  transition: all 0.2s;
 }
 
 .button-secondary:hover {
   background: #e0e0e0;
+  transform: translateY(-2px);
 }
 
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .modal-overlay.fullscreen {
-    padding: 0;
-  }
-
-  .modal.modal-fullscreen {
-    max-width: 100vw;
-    width: 100vw;
-    max-height: 100vh;
-    height: 100vh;
-    border-radius: 0;
-    padding: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px 0;
 }
