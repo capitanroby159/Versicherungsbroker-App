@@ -1,0 +1,15 @@
+.immobilien-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-container {
+  max-width: 900px;
+  margin-bottom: 30px;
+  background: #f9f9f9;
+}
+
+.form-container h3 {
+  margin-bottom: 20px;
+  color: #333;
+}
