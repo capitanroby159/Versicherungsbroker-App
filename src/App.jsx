@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import KundenTab from './components/KundenTab'
-import ImmobilienTab from './components/ImmobilienTab'
+import ImmobildienTab from './components/ImmobildienTab'
 import PoliceTab from './components/PoliceTab'
 import KundenDetailsPage from './components/KundenDetailsPage'
 import './App.css'
@@ -22,7 +22,7 @@ function App() {
           <Routes>
             <Route path="/" element={<KundenTab />} />
             <Route path="/kunden/:id" element={<KundenDetailsPage />} />
-            <Route path="/immobilien" element={<ImmobilienTab />} />
+            <Route path="/immobilien" element={<ImmobildienTab />} />
             <Route path="/policen" element={<PoliceTab />} />
           </Routes>
         </main>

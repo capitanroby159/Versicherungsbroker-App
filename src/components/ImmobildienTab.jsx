@@ -1,94 +1,54 @@
 import { useState, useEffect } from 'react'
+import { formatCHF, formatNumber, formatPercent, getKPIColor, getHypoQuoteColor } from '../utils/formatters'
 import ImmobildienDetailsModal from './ImmobildienDetailsModal'
 import './ImmobildienTab.css'
 
-// ===== UTILITY FUNCTIONS =====
-const formatCHF = (value) => {
-  if (!value && value !== 0) return '-'
-  const num = parseFloat(value)
-  if (isNaN(num)) return '-'
-  
-  const rounded = Math.round(num * 20) / 20
-  
-  return new Intl.NumberFormat('de-CH', {
-    style: 'currency',
-    currency: 'CHF',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(rounded)
-}
-
-const formatNumber = (value) => {
-  if (!value && value !== 0) return '-'
-  const num = parseFloat(value)
-  if (isNaN(num)) return '-'
-  
-  return new Intl.NumberFormat('de-CH', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(num)
-}
-
-const formatPercent = (value, decimals = 2) => {
-  if (!value && value !== 0) return '-'
-  const num = parseFloat(value)
-  if (isNaN(num)) return '-'
-  
-  return num.toFixed(decimals) + '%'
-}
-
-// ===== KPI COLOR HELPER =====
-const getKPIColor = (value, type) => {
-  if (!value && value !== 0) return '#999'
-  
-  const num = parseFloat(value)
-  if (isNaN(num)) return '#999'
-  
-  if (type === 'gewinn') {
-    return num >= 0 ? '#10b981' : '#ef4444'
-  } else if (type === 'bruttorendite') {
-    if (num >= 5) return '#10b981'
-    if (num >= 3) return '#f59e0b'
-    return '#ef4444'
-  } else if (type === 'eigenkapitalrendite') {
-    if (num >= 8) return '#10b981'
-    if (num >= 4) return '#f59e0b'
-    return '#ef4444'
-  }
-  return '#666'
-}
-
-const getHypoQuoteColor = (quote) => {
-  if (quote > 80) return '#ef4444'
-  if (quote >= 65) return '#f59e0b'
-  return '#10b981'
-}
-
 function ImmobildienTab({ kundeId }) {
   const [immobilien, setImmobilien] = useState([])
+  const [allHypotheken, setAllHypotheken] = useState([]) // ✅ NEU: Alle Hypotheken
   const [loading, setLoading] = useState(true)
   const [selectedImmobilie, setSelectedImmobilie] = useState(null)
   const [showDetails, setShowDetails] = useState(false)
 
   useEffect(() => {
-    fetchImmobilien()
+    fetchData()
   }, [kundeId])
 
-  const fetchImmobilien = async () => {
+  // ✅ FIXED: Lade Hypotheken separat für jede Immobilie
+  const fetchData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('http://localhost:5000/api/immobilien')
-      if (!response.ok) throw new Error('Fehler beim Laden')
-      const data = await response.json()
       
+      // 1. Lade Immobilien
+      const immoResponse = await fetch('http://localhost:5000/api/immobilien')
+      if (!immoResponse.ok) throw new Error('Fehler beim Laden der Immobilien')
+      const immoData = await immoResponse.json()
+      
+      // Filter Immobilien falls kundeId gesetzt
+      let filteredImmobilien = immoData
       if (kundeId) {
-        const filtered = data.filter(i => i.kunde_id === kundeId)
-        setImmobilien(filtered)
-      } else {
-        setImmobilien(data)
+        filteredImmobilien = immoData.filter(i => i.kunde_id === kundeId)
       }
+      setImmobilien(filteredImmobilien)
+      
+      // 2. Lade Hypotheken für JEDE Immobilie
+      const allHypos = []
+      for (const immo of filteredImmobilien) {
+        try {
+          const hypoResponse = await fetch(`http://localhost:5000/api/hypotheken/immobilie/${immo.id}`)
+          if (hypoResponse.ok) {
+            const hypos = await hypoResponse.json()
+            allHypos.push(...hypos)
+          }
+        } catch (error) {
+          console.warn(`Fehler beim Laden der Hypotheken für Immobilie ${immo.id}:`, error)
+        }
+      }
+      
+      console.log('✅ Hypotheken geladen:', allHypos.length, 'Einträge')
+      setAllHypotheken(allHypos)
     } catch (error) {
-      console.error('Error fetching immobilien:', error)
+      console.error('Error fetching data:', error)
     } finally {
       setLoading(false)
     }
@@ -120,7 +80,7 @@ function ImmobildienTab({ kundeId }) {
       if (response.ok) {
         alert('✅ Immobilie gespeichert!')
         setShowDetails(false)
-        fetchImmobilien()
+        fetchData() // Neu laden
       } else {
         alert('❌ Fehler beim Speichern')
       }
@@ -138,7 +98,30 @@ function ImmobildienTab({ kundeId }) {
     setShowDetails(true)
   }
 
-  // ===== SUMMARY CALCULATIONS =====
+  // ✅ NEU: Lösche Immobilie
+  const handleDeleteImmobilie = async (immobilieId) => {
+    if (!confirm('🗑️ Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/immobilien/${immobilieId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        alert('✅ Immobilie gelöscht!')
+        fetchData() // Neuladen
+      } else {
+        alert('❌ Fehler beim Löschen')
+      }
+    } catch (error) {
+      console.error('Error deleting immobilie:', error)
+      alert('❌ Fehler: ' + error.message)
+    }
+  }
+
+  // ===== SUMMARY CALCULATIONS ✅ FIXED =====
   const calculateSummary = () => {
     if (immobilien.length === 0) return null
 
@@ -158,19 +141,15 @@ function ImmobildienTab({ kundeId }) {
       totalKaufpreis += kaufpreis
       totalMietertrag += mietertrag
 
-      // Parse hypotheken
-      try {
-        const hypos = immo.hypotheken ? JSON.parse(typeof immo.hypotheken === 'string' ? immo.hypotheken : JSON.stringify(immo.hypotheken)) : []
-        hypos.forEach(hypo => {
-          const betrag = parseFloat(hypo.betrag) || 0
-          const zinssatz = parseFloat(hypo.zinssatz) || 0
-          totalHypothek += betrag
-          totalZinskosten += (betrag * zinssatz / 100)
-          hypothekenData.push({ betrag, zinssatz })
-        })
-      } catch (e) {
-        console.warn('Error parsing hypotheken:', e)
-      }
+      // ✅ NEU: Hole Hypotheken aus allHypotheken State (von API)
+      const immoHypotheken = allHypotheken.filter(h => h.immobilie_id === immo.id)
+      immoHypotheken.forEach(hypo => {
+        const betrag = parseFloat(hypo.betrag) || 0
+        const zinssatz = parseFloat(hypo.zinssatz) || 0
+        totalHypothek += betrag
+        totalZinskosten += (betrag * zinssatz / 100)
+        hypothekenData.push({ betrag, zinssatz })
+      })
     })
 
     const totalEigenkapital = totalKaufpreis - totalHypothek
@@ -299,6 +278,12 @@ function ImmobildienTab({ kundeId }) {
                     onClick={() => handleOpenDetails(immobilie)}
                   >
                     👁️ Details
+                  </button>
+                  <button 
+                    className="button-delete"
+                    onClick={() => handleDeleteImmobilie(immobilie.id)}
+                  >
+                    🗑️ Löschen
                   </button>
                 </td>
               </tr>

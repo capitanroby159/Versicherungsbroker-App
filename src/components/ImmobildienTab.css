@@ -1,4 +1,4 @@
-/* ImmobildienTab.css - Updated with Summary Dashboard */
+/* ImmobildienTab.css - Updated with Summary Dashboard + Delete Button */
 
 .immobilien-tab {
   padding: 20px;
@@ -157,7 +157,7 @@
 
 .immobilien-table thead {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: black;
 }
 
 .immobilien-table th {
@@ -180,6 +180,7 @@
   background: #f9fafb;
 }
 
+/* ===== ACTION BUTTONS ===== */
 .button-details {
   background: #667eea;
   color: white;
@@ -190,12 +191,31 @@
   font-size: 13px;
   font-weight: 600;
   transition: all 0.2s;
+  margin-right: 8px;
 }
 
 .button-details:hover {
   background: #764ba2;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.button-delete {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.button-delete:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* Empty State */

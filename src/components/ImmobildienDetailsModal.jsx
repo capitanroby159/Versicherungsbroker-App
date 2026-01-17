@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './ImmobildienDetailsModal.css'
 
 // ===== UTILITY FUNCTIONS =====
@@ -60,15 +60,101 @@ const getHypoQuoteColor = (quote) => {
 // ===== MAIN COMPONENT =====
 function ImmobildienDetailsModal({ immobilie, onClose, onSave }) {
   const [formData, setFormData] = useState(immobilie || {})
-  const [hypotheken, setHypotheken] = useState(
-    immobilie?.hypotheken 
-      ? JSON.parse(typeof immobilie.hypotheken === 'string' ? immobilie.hypotheken : JSON.stringify(immobilie.hypotheken)) 
-      : []
-  )
+  const [hypotheken, setHypotheken] = useState([]) // Start mit leerer Liste, laden via API!
   const [editMode, setEditMode] = useState(!immobilie?.id)
   const [showHypoModal, setShowHypoModal] = useState(false)
   const [hypoForm, setHypoForm] = useState({})
   const [editingHypoId, setEditingHypoId] = useState(null)
+
+  // ===== FIX: Synchronisiere formData UND lade Hypotheken wenn sich immobilie ändert =====
+  useEffect(() => {
+    // Reset formData zu neuer Immobilie
+    setFormData(immobilie || {})
+    
+    // Lade Hypotheken
+    if (immobilie?.id) {
+      fetchHypotheken()
+    }
+  }, [immobilie?.id])
+
+  const fetchHypotheken = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/hypotheken/immobilie/${immobilie.id}`)
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ Hypotheken geladen:', data.length, 'Einträge für Immobilie ID:', immobilie.id)
+        setHypotheken(Array.isArray(data) ? data : [])
+      }
+    } catch (error) {
+      console.warn('❌ Fehler beim Laden der Hypotheken:', error)
+      setHypotheken([])
+    }
+  }
+
+  // Hypotheken-Management
+  const handleAddHypotheke = () => {
+    setHypoForm({ institut: '', art: 'Festhypothek', betrag: '', zinssatz: '' })
+    setEditingHypoId(null)
+    setShowHypoModal(true)
+  }
+
+  const handleSaveHypotheke = async () => {
+    try {
+      const hypoData = {
+        immobilie_id: immobilie.id,
+        ...hypoForm
+      }
+
+      let response
+      if (editingHypoId) {
+        // UPDATE
+        response = await fetch(`http://localhost:5000/api/hypotheken/${editingHypoId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(hypoForm)
+        })
+      } else {
+        // CREATE
+        response = await fetch('http://localhost:5000/api/hypotheken', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(hypoData)
+        })
+      }
+
+      if (response.ok) {
+        console.log('✅ Hypotheke gespeichert')
+        setShowHypoModal(false)  // Modal schließen
+        setHypoForm({})           // Form leeren
+        setEditingHypoId(null)    // Editing-ID resetten
+        await fetchHypotheken() // Reload - wichtig für neue Hypotheken!
+      } else {
+        alert('❌ Fehler beim Speichern')
+      }
+    } catch (error) {
+      console.error('❌ Error:', error)
+      alert('Fehler beim Speichern: ' + error.message)
+    }
+  }
+
+  const handleDeleteHypotheke = async (hypoId) => {
+    if (!confirm('💀 Hypotheke wirklich löschen?')) return
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/hypotheken/${hypoId}`, {
+        method: 'DELETE'
+      })
+      if (response.ok) {
+        console.log('✅ Hypotheke gelöscht')
+        fetchHypotheken() // Reload
+      } else {
+        alert('❌ Fehler beim Löschen')
+      }
+    } catch (error) {
+      console.error('❌ Error:', error)
+      alert('Fehler beim Löschen: ' + error.message)
+    }
+  }
 
   const IMMOBILIENARTEN = [
     'Einfamilienhaus', 'Reihenhaus', 'Doppeleinfamilienhaus', 'Mehrfamilienhaus',
@@ -125,18 +211,15 @@ function ImmobildienDetailsModal({ immobilie, onClose, onSave }) {
   }
 
   const handleSave = () => {
-    const dataToSave = {
-      ...formData,
-      hypotheken: JSON.stringify(hypotheken)
-    }
-    onSave(dataToSave)
+    // Hypotheken werden NICHT mehr hier gespeichert - sie kommen über die API!
+    onSave(formData)
     setEditMode(false)
   }
 
   const handleCancel = () => {
     if (immobilie?.id) {
       setFormData(immobilie)
-      setHypotheken(immobilie?.hypotheken ? JSON.parse(typeof immobilie.hypotheken === 'string' ? immobilie.hypotheken : JSON.stringify(immobilie.hypotheken)) : [])
+      fetchHypotheken() // Reload hypotheken from API
       setEditMode(false)
     } else {
       onClose()
@@ -149,7 +232,7 @@ function ImmobildienDetailsModal({ immobilie, onClose, onSave }) {
       setHypoForm({ ...hypo })
       setEditingHypoId(hypo.id)
     } else {
-      setHypoForm({ id: Date.now() })
+      setHypoForm({ institut: '', art: 'Festhypothek', betrag: '', zinssatz: '' })
       setEditingHypoId(null)
     }
     setShowHypoModal(true)
@@ -160,19 +243,14 @@ function ImmobildienDetailsModal({ immobilie, onClose, onSave }) {
       alert('❌ Alle Felder erforderlich!')
       return
     }
-
-    if (editingHypoId) {
-      setHypotheken(hypotheken.map(h => h.id === editingHypoId ? hypoForm : h))
-    } else {
-      setHypotheken([...hypotheken, hypoForm])
-    }
-    setShowHypoModal(false)
-    setHypoForm({})
+    // Rufe die API-basierte Funktion auf!
+    handleSaveHypotheke()
   }
 
   const handleDeleteHypo = (id) => {
-    if (confirm('❌ Hypothek wirklich löschen?')) {
-      setHypotheken(hypotheken.filter(h => h.id !== id))
+    if (confirm('❌ Hypotheke wirklich löschen?')) {
+      // Rufe die API-basierte Funktion auf!
+      handleDeleteHypotheke(id)
     }
   }
 
@@ -529,6 +607,13 @@ function ImmobildienDetailsModal({ immobilie, onClose, onSave }) {
                         <div style={{fontSize: '12px', color: '#666'}}>
                           Zins/Jahr: {formatCHF(parseFloat(hypo.betrag) * parseFloat(hypo.zinssatz) / 100)}
                         </div>
+                        {(hypo.beginn || hypo.ablauf) && (
+                          <div style={{fontSize: '11px', color: '#999', marginTop: '5px'}}>
+                            {hypo.beginn && <span>📅 Beginn: {new Date(hypo.beginn).toLocaleDateString('de-CH')}</span>}
+                            {hypo.beginn && hypo.ablauf && <span> | </span>}
+                            {hypo.ablauf && <span>Ablauf: {new Date(hypo.ablauf).toLocaleDateString('de-CH')}</span>}
+                          </div>
+                        )}
                       </div>
                       {editMode && (
                         <div className="hypo-actions">
@@ -593,7 +678,7 @@ function ImmobildienDetailsModal({ immobilie, onClose, onSave }) {
         {/* ===== HYPOTHEKEN MODAL ===== */}
         {showHypoModal && (
           <div className="modal-overlay">
-            <div className="modal" style={{maxWidth: '400px'}}>
+            <div className="modal" style={{maxWidth: '500px'}}>
               <h3>Hypothek {editingHypoId ? 'bearbeiten' : 'hinzufügen'}</h3>
               <div className="modal-form">
                 <div className="form-group">
@@ -630,6 +715,31 @@ function ImmobildienDetailsModal({ immobilie, onClose, onSave }) {
                     step="0.001"
                     value={hypoForm.zinssatz || ''}
                     onChange={(e) => setHypoForm({...hypoForm, zinssatz: e.target.value})}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Beginn</label>
+                  <input 
+                    type="date" 
+                    value={hypoForm.beginn || ''}
+                    onChange={(e) => setHypoForm({...hypoForm, beginn: e.target.value})}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Ablauf</label>
+                  <input 
+                    type="date" 
+                    value={hypoForm.ablauf || ''}
+                    onChange={(e) => setHypoForm({...hypoForm, ablauf: e.target.value})}
+                  />
+                </div>
+                <div className="form-group" style={{gridColumn: '1 / -1'}}>
+                  <label>Notizen</label>
+                  <textarea 
+                    rows="2"
+                    value={hypoForm.notizen || ''}
+                    onChange={(e) => setHypoForm({...hypoForm, notizen: e.target.value})}
+                    placeholder="z.B. Spezialkonditionen, Besonderheiten..."
                   />
                 </div>
               </div>

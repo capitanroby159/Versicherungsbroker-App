@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { formatCHF } from '../utils/formatters'
 import './PoliceTab.css'
 
 function PoliceTab() {
@@ -67,7 +68,7 @@ function PoliceTab() {
               <th>ID</th>
               <th>Kunde</th>
               <th>Policenummer</th>
-              <th>Prämie CHF</th>
+              <th>Prämie</th>
               <th>Startdatum</th>
               <th>Enddatum</th>
               <th>Status</th>
@@ -80,7 +81,7 @@ function PoliceTab() {
                 <td>{police.id}</td>
                 <td>{getKundenName(police.kunde_id)}</td>
                 <td>{police.policennummer}</td>
-                <td>{police.praemie_chf}</td>
+                <td>{formatCHF(police.praemie_chf)}</td>
                 <td>{formatDate(police.beginn)}</td>
                 <td>{formatDate(police.ende)}</td>
                 <td>

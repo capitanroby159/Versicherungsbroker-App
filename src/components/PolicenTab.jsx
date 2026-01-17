@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { formatCHF } from '../utils/formatters'
 import PolicenDetailsModal from './PolicenDetailsModal'
 import './PolicenTab.css'
 
@@ -114,7 +115,7 @@ function PolicenTab({ kundeId }) {
                 <tr key={police.id}>
                   <td><strong>{police.policennummer}</strong></td>
                   <td>{police.versicherer_name || '-'}</td>
-                  <td>{total.toFixed(2)} CHF</td>
+                  <td>{formatCHF(total)}</td>
                   <td>{police.beginn ? new Date(police.beginn).toLocaleDateString('de-CH') : '-'}</td>
                   <td>{police.ende ? new Date(police.ende).toLocaleDateString('de-CH') : '-'}</td>
                   <td>

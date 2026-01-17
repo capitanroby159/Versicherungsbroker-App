@@ -1,48 +1,48 @@
 import { useState, useEffect } from 'react'
 import './PolicenDetailsModal.css'
+import { formatCHF, formatNumber } from '../utils/formatters'
+
+// ===== VERSICHERER =====
+// ✅ KORRIGIERT - echte DB IDs (1-7)
+const VERSICHERER_LISTE = [
+  { id: 1, name: 'AXA', typ: 'Großversicherer' },
+  { id: 2, name: 'Zurich', typ: 'Großversicherer' },
+  { id: 3, name: 'Vaudoise', typ: 'Spezialversicherer' },
+  { id: 4, name: 'Die Mobiliar', typ: 'Großversicherer' },
+  { id: 5, name: 'Generali', typ: 'Spezialversicherer' },
+  { id: 6, name: 'Helvetia', typ: 'Großversicherer' },
+  { id: 7, name: 'Baloise', typ: 'Großversicherer' },
+]
+
+// ===== BRANCHEN =====
+// ✅ KORRIGIERT - echte DB IDs (1-12)
+const BRANCHEN_LISTE = [
+  { id: 1, name: 'Motorfahrzeug', kategorie: 'Privatversicherungen' },
+  { id: 2, name: 'Haushalt', kategorie: 'Privatversicherungen' },
+  { id: 3, name: 'Gebäude', kategorie: 'Privatversicherungen' },
+  { id: 4, name: 'Rechtsschutz', kategorie: 'Privatversicherungen' },
+  { id: 5, name: 'UVG', kategorie: 'Geschäftsversicherungen' },
+  { id: 6, name: 'KTG', kategorie: 'Geschäftsversicherungen' },
+  { id: 7, name: 'BVG', kategorie: 'Geschäftsversicherungen' },
+  { id: 8, name: 'Sach', kategorie: 'Geschäftsversicherungen' },
+  { id: 9, name: 'Haft', kategorie: 'Geschäftsversicherungen' },
+  { id: 10, name: 'Kautionen', kategorie: 'Geschäftsversicherungen' },
+  { id: 11, name: 'Risiko', kategorie: 'Geschäftsversicherungen' },
+  { id: 12, name: 'Sparen', kategorie: 'Geschäftsversicherungen' },
+]
 
 function PolicenDetailsModal({ police, onClose, onSave }) {
   const [formData, setFormData] = useState(police || {})
-  const [branches, setBranches] = useState([])
-  const [versicherers, setVersicherers] = useState([])
+  const [branches, setBranches] = useState(BRANCHEN_LISTE)
+  const [versicherers, setVersicherers] = useState(VERSICHERER_LISTE)
   const [uploadedFiles, setUploadedFiles] = useState([])
   const [fileInput, setFileInput] = useState(null)
   const [fileCategory, setFileCategory] = useState('Police')
   const [fileDescription, setFileDescription] = useState('')
-  const [editMode, setEditMode] = useState(!police?.id) // Auto-edit für neue Policen
+  const [editMode, setEditMode] = useState(!police?.id)
 
   const formatDate = (date) => date ? date.split('T')[0] : ''
 
-  useEffect(() => {
-    fetchBranches()
-    fetchVersicherers()
-  }, [])
-
-  const fetchBranches = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/branchen')
-      if (response.ok) {
-        const data = await response.json()
-        setBranches(data || [])
-      }
-    } catch (error) {
-      console.warn('Fehler beim Laden der Branchen:', error)
-    }
-  }
-
-  const fetchVersicherers = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/versicherer')
-      if (response.ok) {
-        const data = await response.json()
-        setVersicherers(data || [])
-      }
-    } catch (error) {
-      console.warn('Fehler beim Laden der Versicherer:', error)
-    }
-  }
-
-  // Berechne Total automatisch
   const praemie = parseFloat(formData.praemie_chf) || 0
   const gebuehren = parseFloat(formData.gebuehren) || 0
   const total = praemie + gebuehren
@@ -81,11 +81,9 @@ function PolicenDetailsModal({ police, onClose, onSave }) {
 
   const handleCancel = () => {
     if (police?.id) {
-      // Bestehende Police - zurück zu View Mode
       setFormData(police)
       setEditMode(false)
     } else {
-      // Neue Police - Modal schließen
       onClose()
     }
   }
@@ -95,7 +93,7 @@ function PolicenDetailsModal({ police, onClose, onSave }) {
       <div className="modal modal-fullscreen">
         <div className="modal-header">
           <div>
-            <h3>📋 Prämie: {praemie.toFixed(2)} CHF</h3>
+            <h3>📋 Prämie: {formatCHF(praemie)}</h3>
             <p className="modal-subtitle">Policenummer: {police?.policennummer || 'Neue Police'}</p>
           </div>
           <div className="header-actions">
@@ -200,14 +198,14 @@ function PolicenDetailsModal({ police, onClose, onSave }) {
               <div className="form-group">
                 <label>Total</label>
                 <input 
-                  type="number" 
-                  value={total.toFixed(2)} 
+                  type="text" 
+                  value={formatCHF(total)} 
                   readOnly 
                   style={{background: '#f0f0f0', fontWeight: 'bold'}} 
                 />
               </div>
 
-              {/* ROW 4: Währung (spans 1 column) */}
+              {/* ROW 4: Währung */}
               <div className="form-group">
                 <label>Währung</label>
                 <select 
