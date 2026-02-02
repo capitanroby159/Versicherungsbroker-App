@@ -1,0 +1,264 @@
+.dateien-tab {
+  padding: 20px;
+}
+
+.dateien-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 15px;
+}
+
+.dateien-header h2 {
+  color: #10b981;
+  margin: 0;
+}
+
+/* Upload Form */
+.upload-form {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95em;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-small {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #10b981;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #059669;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  font-size: 0.85em;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 0.85em;
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-small:hover {
+  background: #2563eb;
+}
+
+/* Dateien Liste */
+.dateien-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.empty {
+  text-align: center;
+  color: #9ca3af;
+  padding: 40px 20px;
+  background: #f3f4f6;
+  border-radius: 8px;
+  font-style: italic;
+}
+
+.datei-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s;
+}
+
+.datei-item:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.datei-item.expired {
+  opacity: 0.7;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.datei-info {
+  flex: 1;
+}
+
+.datei-name {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 5px 0;
+  font-size: 1.05em;
+}
+
+.datei-type {
+  color: #6b7280;
+  margin: 3px 0;
+  font-size: 0.9em;
+}
+
+.datei-desc {
+  color: #6b7280;
+  margin: 5px 0;
+  font-style: italic;
+}
+
+.datei-validity {
+  color: #7c3aed;
+  margin: 5px 0;
+  font-size: 0.9em;
+}
+
+.datei-date {
+  color: #9ca3af;
+  margin: 5px 0 0 0;
+  font-size: 0.85em;
+}
+
+.expired-badge {
+  background: #ef4444;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.8em;
+}
+
+.datei-actions {
+  display: flex;
+  gap: 10px;
+  margin-left: 15px;
+}
+
+/* Fehler-Meldungen */
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border-left: 4px solid #dc2626;
+}
+
+.success-message {
+  background: #dcfce7;
+  color: #166534;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border-left: 4px solid #22c55e;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .datei-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .datei-actions {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .btn-small {
+    flex: 1;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}

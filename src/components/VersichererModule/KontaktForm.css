@@ -1,0 +1,57 @@
+.kontakt-form {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.kontakt-form h3 {
+  color: #374151;
+  margin-bottom: 15px;
+}
+
+.kontakt-form .form-group {
+  margin-bottom: 15px;
+}
+
+.kontakt-form label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #374151;
+}
+
+.kontakt-form input,
+.kontakt-form select,
+.kontakt-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.checkbox-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  width: auto;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin-top: 20px;
+}

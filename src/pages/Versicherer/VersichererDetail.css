@@ -1,0 +1,59 @@
+.versicherer-detail-container {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.detail-header h1 {
+  color: #1f2937;
+  font-size: 2em;
+  margin: 0;
+}
+
+.tab-system {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+
+.tab {
+  padding: 15px 25px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+  font-size: 0.95em;
+}
+
+.tab:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.tab.active {
+  background: white;
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+.tab-content {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 30px;
+}

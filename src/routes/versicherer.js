@@ -9,10 +9,10 @@ const router = express.Router()
 router.get('/', async (req, res) => {
   const connection = await getConnection()
   try {
-    const [rows] = await connection.execute('SELECT * FROM versicherer ORDER BY name')
+    const [rows] = await connection.execute('SELECT * FROM versicherer')
     res.json(rows)
   } catch (error) {
-    console.error('❌ Fehler beim Laden aller Versicherer:', error)
+    console.error(error)
     res.status(500).json({ message: 'Error fetching versicherer', error: error.message })
   } finally {
     connection.release()
@@ -37,10 +37,9 @@ router.post('/', async (req, res) => {
       [name, strasse || null, hausnummer || null, plz || null, ort || null, land || 'Switzerland', telefon, website || null, status || 'Aktiv', zav_seit || null, notizen || null]
     )
     
-    console.log('✅ Versicherer erstellt:', result.insertId)
     res.json({ id: result.insertId, message: 'Versicherer erstellt' })
   } catch (error) {
-    console.error('❌ Fehler beim Erstellen des Versicherers:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Erstellen des Versicherers', error: error.message })
   } finally {
     connection.release()
@@ -48,154 +47,20 @@ router.post('/', async (req, res) => {
 })
 
 // ============================================================
-// VERSICHERER - GET SINGLE (MUSS VOR /:id/* Routes sein!)
-// ============================================================
-router.get('/:id', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const { id } = req.params
-    console.log('📍 Lade Versicherer mit ID:', id)
-    
-    const [rows] = await connection.execute(
-      'SELECT * FROM versicherer WHERE id = ?',
-      [id]
-    )
-    
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Versicherer nicht gefunden' })
-    }
-    
-    res.json(rows[0])
-  } catch (error) {
-    console.error('❌ Fehler beim Laden des Versicherers:', error)
-    res.status(500).json({ message: 'Error fetching versicherer', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// ============================================================
-// VERSICHERER - PUT UPDATE
-// ============================================================
-router.put('/:id', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const { id } = req.params
-    const { name, strasse, hausnummer, plz, ort, land, telefon, website, status, zav_seit, notizen } = req.body
-    
-    if (!name || !telefon) {
-      return res.status(400).json({ message: 'Name und Telefon sind erforderlich' })
-    }
-    
-    const [result] = await connection.execute(
-      `UPDATE versicherer SET 
-       name = ?, strasse = ?, hausnummer = ?, plz = ?, ort = ?, land = ?, 
-       telefon = ?, website = ?, status = ?, zav_seit = ?, notizen = ?
-       WHERE id = ?`,
-      [name, strasse || null, hausnummer || null, plz || null, ort || null, land || 'Switzerland', telefon, website || null, status || 'Aktiv', zav_seit || null, notizen || null, id]
-    )
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Versicherer nicht gefunden' })
-    }
-    
-    console.log('✅ Versicherer aktualisiert:', id)
-    res.json({ id, message: 'Versicherer aktualisiert' })
-  } catch (error) {
-    console.error('❌ Fehler beim Aktualisieren des Versicherers:', error)
-    res.status(500).json({ message: 'Fehler beim Aktualisieren des Versicherers', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// ============================================================
-// VERSICHERER - DELETE
-// ============================================================
-router.delete('/:id', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const { id } = req.params
-    
-    const [result] = await connection.execute(
-      'DELETE FROM versicherer WHERE id = ?',
-      [id]
-    )
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Versicherer nicht gefunden' })
-    }
-    
-    console.log('✅ Versicherer gelöscht:', id)
-    res.json({ message: 'Versicherer gelöscht' })
-  } catch (error) {
-    console.error('❌ Fehler beim Löschen des Versicherers:', error)
-    res.status(500).json({ message: 'Fehler beim Löschen des Versicherers', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// ============================================================================
-// KONTAKTE
-// ============================================================================
-
-// ============================================================
 // KONTAKTE - GET ALL FOR VERSICHERER
-// 🎯 WICHTIG: Wird von AktivitaetForm verwendet!
 // ============================================================
 router.get('/:id/kontakte', async (req, res) => {
   const connection = await getConnection()
   try {
     const { id } = req.params
-    console.log('📞 Lade Kontakte für Versicherer:', id)
-    
     const [rows] = await connection.execute(
-      `SELECT 
-        id,
-        vorname,
-        nachname,
-        position,
-        email,
-        telefon,
-        art,
-        status
-       FROM versicherer_kontakte 
-       WHERE versicherer_id = ? 
-       ORDER BY nachname, vorname ASC`,
+      'SELECT * FROM versicherer_kontakte WHERE versicherer_id = ? ORDER BY nachname, vorname',
       [id]
     )
-    
-    console.log(`✅ ${rows.length} Kontakte gefunden`)
     res.json(rows)
   } catch (error) {
-    console.error('❌ Fehler beim Laden der Kontakte:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Laden der Kontakte', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// ============================================================
-// KONTAKT - GET SINGLE
-// ============================================================
-router.get('/kontakt/:kontaktId', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const { kontaktId } = req.params
-    const [rows] = await connection.execute(
-      'SELECT * FROM versicherer_kontakte WHERE id = ?',
-      [kontaktId]
-    )
-    
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Kontakt nicht gefunden' })
-    }
-    
-    res.json(rows[0])
-  } catch (error) {
-    console.error('❌ Fehler beim Laden des Kontakts:', error)
-    res.status(500).json({ message: 'Fehler beim Laden des Kontakts', error: error.message })
   } finally {
     connection.release()
   }
@@ -221,81 +86,14 @@ router.post('/:id/kontakte', async (req, res) => {
       [id, vorname, nachname, position || null, email, telefon || null, art || null, direkt_erreichbar || false, status || 'Aktiv', notizen || null]
     )
     
-    console.log('✅ Kontakt erstellt:', result.insertId)
     res.json({ id: result.insertId, message: 'Kontakt erstellt' })
   } catch (error) {
-    console.error('❌ Fehler beim Erstellen des Kontakts:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Erstellen des Kontakts', error: error.message })
   } finally {
     connection.release()
   }
 })
-
-// ============================================================
-// KONTAKT - PUT UPDATE
-// ============================================================
-router.put('/kontakt/:kontaktId', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const { kontaktId } = req.params
-    const { vorname, nachname, position, email, telefon, art, direkt_erreichbar, status, notizen } = req.body
-    
-    if (!vorname || !nachname || !email) {
-      return res.status(400).json({ message: 'Vorname, Nachname und Email sind erforderlich' })
-    }
-    
-    const [result] = await connection.execute(
-      `UPDATE versicherer_kontakte SET 
-       vorname = ?, nachname = ?, position = ?, email = ?, telefon = ?, 
-       art = ?, direkt_erreichbar = ?, status = ?, notizen = ?
-       WHERE id = ?`,
-      [vorname, nachname, position || null, email, telefon || null, art || null, direkt_erreichbar || false, status || 'Aktiv', notizen || null, kontaktId]
-    )
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Kontakt nicht gefunden' })
-    }
-    
-    console.log('✅ Kontakt aktualisiert:', kontaktId)
-    res.json({ id: kontaktId, message: 'Kontakt aktualisiert' })
-  } catch (error) {
-    console.error('❌ Fehler beim Aktualisieren des Kontakts:', error)
-    res.status(500).json({ message: 'Fehler beim Aktualisieren des Kontakts', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// ============================================================
-// KONTAKT - DELETE
-// ============================================================
-router.delete('/kontakt/:kontaktId', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const { kontaktId } = req.params
-    
-    const [result] = await connection.execute(
-      'DELETE FROM versicherer_kontakte WHERE id = ?',
-      [kontaktId]
-    )
-    
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Kontakt nicht gefunden' })
-    }
-    
-    console.log('✅ Kontakt gelöscht:', kontaktId)
-    res.json({ message: 'Kontakt gelöscht' })
-  } catch (error) {
-    console.error('❌ Fehler beim Löschen des Kontakts:', error)
-    res.status(500).json({ message: 'Fehler beim Löschen des Kontakts', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// ============================================================================
-// ANSPRECHPERSONEN
-// ============================================================================
 
 // ============================================================
 // ANSPRECHPERSONEN - GET ALL FOR VERSICHERER
@@ -304,7 +102,7 @@ router.get('/:id/ansprechpersonen', async (req, res) => {
   const connection = await getConnection()
   try {
     const { id } = req.params
-    console.log('👥 Lade Ansprechpersonen für Versicherer:', id)
+    console.log('Lade Ansprechpersonen für Versicherer:', id)
     
     const [rows] = await connection.execute(
       `SELECT ap.*, k.vorname, k.nachname, k.position, k.email, k.telefon 
@@ -313,10 +111,9 @@ router.get('/:id/ansprechpersonen', async (req, res) => {
        WHERE ap.versicherer_id = ?`,
       [id]
     )
-    
     res.json(rows)
   } catch (error) {
-    console.error('❌ Fehler beim Laden der Ansprechpersonen:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Laden der Ansprechpersonen', error: error.message })
   } finally {
     connection.release()
@@ -332,7 +129,7 @@ router.post('/:id/ansprechpersonen', async (req, res) => {
     const { id } = req.params
     const { typ, kontakt_id, ist_hauptansprechperson } = req.body
     
-    console.log('👥 POST Ansprechperson:', { id, typ, kontakt_id })
+    console.log('POST Ansprechperson:', { id, typ, kontakt_id })
     
     if (!typ || !kontakt_id) {
       return res.status(400).json({ message: 'Typ und Kontakt-ID sind erforderlich' })
@@ -350,19 +147,17 @@ router.post('/:id/ansprechpersonen', async (req, res) => {
         'UPDATE versicherer_ansprechpersonen SET kontakt_id = ?, ist_hauptansprechperson = ? WHERE versicherer_id = ? AND typ = ?',
         [kontakt_id, ist_hauptansprechperson || true, id, typ]
       )
-      console.log('✅ Ansprechperson aktualisiert')
     } else {
       // Insert new
       await connection.execute(
         'INSERT INTO versicherer_ansprechpersonen (versicherer_id, typ, kontakt_id, ist_hauptansprechperson) VALUES (?, ?, ?, ?)',
         [id, typ, kontakt_id, ist_hauptansprechperson || true]
       )
-      console.log('✅ Ansprechperson zugewiesen')
     }
     
     res.json({ message: 'Ansprechperson zugewiesen' })
   } catch (error) {
-    console.error('❌ Fehler beim Zuweisen der Ansprechperson:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Zuweisen der Ansprechperson', error: error.message })
   } finally {
     connection.release()
@@ -377,7 +172,7 @@ router.delete('/:id/ansprechpersonen/:typ', async (req, res) => {
   try {
     const { id, typ } = req.params
     
-    console.log('❌ DELETE Ansprechperson:', { id, typ })
+    console.log('DELETE Ansprechperson:', { id, typ })
     
     const [result] = await connection.execute(
       'DELETE FROM versicherer_ansprechpersonen WHERE versicherer_id = ? AND typ = ?',
@@ -388,19 +183,14 @@ router.delete('/:id/ansprechpersonen/:typ', async (req, res) => {
       return res.status(404).json({ message: 'Ansprechperson nicht gefunden' })
     }
     
-    console.log('✅ Ansprechperson entfernt')
     res.json({ message: 'Ansprechperson entfernt' })
   } catch (error) {
-    console.error('❌ Fehler beim Entfernen der Ansprechperson:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Entfernen der Ansprechperson', error: error.message })
   } finally {
     connection.release()
   }
 })
-
-// ============================================================================
-// DATEIEN
-// ============================================================================
 
 // ============================================================
 // DATEIEN - GET ALL FOR VERSICHERER
@@ -415,7 +205,7 @@ router.get('/:id/dateien', async (req, res) => {
     )
     res.json(rows)
   } catch (error) {
-    console.error('❌ Fehler beim Laden der Dateien:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Laden der Dateien', error: error.message })
   } finally {
     connection.release()
@@ -431,7 +221,7 @@ router.post('/:id/dateien', async (req, res) => {
     const { id } = req.params
     const { dateiname, dateityp, beschreibung, gueltig_ab, gueltig_bis } = req.body
     
-    console.log('📄 POST Datei:', { id, dateiname, dateityp, gueltig_ab, gueltig_bis })
+    console.log('POST Datei:', { id, dateiname, dateityp, gueltig_ab, gueltig_bis })
     
     if (!dateiname || !dateityp) {
       return res.status(400).json({ message: 'Dateiname und Dateityp sind erforderlich' })
@@ -444,10 +234,10 @@ router.post('/:id/dateien', async (req, res) => {
       [id, dateiname, dateityp, beschreibung || null, gueltig_ab || null, gueltig_bis || null, 0, null]
     )
     
-    console.log('✅ Datei erstellt mit ID:', result.insertId)
+    console.log('Datei erstellt mit ID:', result.insertId)
     res.json({ id: result.insertId, message: 'Datei erstellt' })
   } catch (error) {
-    console.error('❌ Fehler beim Erstellen der Datei:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Erstellen der Datei', error: error.message })
   } finally {
     connection.release()
@@ -478,10 +268,9 @@ router.put('/:id/dateien/:dateiId', async (req, res) => {
       return res.status(404).json({ message: 'Datei nicht gefunden' })
     }
     
-    console.log('✅ Datei aktualisiert:', dateiId)
     res.json({ id: dateiId, message: 'Datei aktualisiert' })
   } catch (error) {
-    console.error('❌ Fehler beim Aktualisieren der Datei:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Aktualisieren der Datei', error: error.message })
   } finally {
     connection.release()
@@ -496,7 +285,7 @@ router.delete('/:id/dateien/:dateiId', async (req, res) => {
   try {
     const { id, dateiId } = req.params
     
-    console.log('❌ DELETE Datei:', { id, dateiId })
+    console.log('DELETE Datei:', { id, dateiId })
     
     const [result] = await connection.execute(
       'DELETE FROM versicherer_dateien WHERE id = ? AND versicherer_id = ?',
@@ -507,11 +296,182 @@ router.delete('/:id/dateien/:dateiId', async (req, res) => {
       return res.status(404).json({ message: 'Datei nicht gefunden' })
     }
     
-    console.log('✅ Datei gelöscht')
     res.json({ message: 'Datei gelöscht' })
   } catch (error) {
-    console.error('❌ Fehler beim Löschen der Datei:', error)
+    console.error(error)
     res.status(500).json({ message: 'Fehler beim Löschen der Datei', error: error.message })
+  } finally {
+    connection.release()
+  }
+})
+
+// ============================================================
+// KONTAKT - GET SINGLE
+// ============================================================
+router.get('/kontakt/:kontaktId', async (req, res) => {
+  const connection = await getConnection()
+  try {
+    const { kontaktId } = req.params
+    const [rows] = await connection.execute(
+      'SELECT * FROM versicherer_kontakte WHERE id = ?',
+      [kontaktId]
+    )
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Kontakt nicht gefunden' })
+    }
+    
+    res.json(rows[0])
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Fehler beim Laden des Kontakts', error: error.message })
+  } finally {
+    connection.release()
+  }
+})
+
+// ============================================================
+// KONTAKT - PUT UPDATE
+// ============================================================
+router.put('/kontakt/:kontaktId', async (req, res) => {
+  const connection = await getConnection()
+  try {
+    const { kontaktId } = req.params
+    const { vorname, nachname, position, email, telefon, art, direkt_erreichbar, status, notizen } = req.body
+    
+    if (!vorname || !nachname || !email) {
+      return res.status(400).json({ message: 'Vorname, Nachname und Email sind erforderlich' })
+    }
+    
+    const [result] = await connection.execute(
+      `UPDATE versicherer_kontakte SET 
+       vorname = ?, nachname = ?, position = ?, email = ?, telefon = ?, 
+       art = ?, direkt_erreichbar = ?, status = ?, notizen = ?
+       WHERE id = ?`,
+      [vorname, nachname, position || null, email, telefon || null, art || null, direkt_erreichbar || false, status || 'Aktiv', notizen || null, kontaktId]
+    )
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Kontakt nicht gefunden' })
+    }
+    
+    res.json({ id: kontaktId, message: 'Kontakt aktualisiert' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Fehler beim Aktualisieren des Kontakts', error: error.message })
+  } finally {
+    connection.release()
+  }
+})
+
+// ============================================================
+// KONTAKT - DELETE
+// ============================================================
+router.delete('/kontakt/:kontaktId', async (req, res) => {
+  const connection = await getConnection()
+  try {
+    const { kontaktId } = req.params
+    
+    const [result] = await connection.execute(
+      'DELETE FROM versicherer_kontakte WHERE id = ?',
+      [kontaktId]
+    )
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Kontakt nicht gefunden' })
+    }
+    
+    res.json({ message: 'Kontakt gelöscht' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Fehler beim Löschen des Kontakts', error: error.message })
+  } finally {
+    connection.release()
+  }
+})
+
+// ============================================================
+// VERSICHERER - PUT UPDATE (nach spezifischen Routes!)
+// ============================================================
+router.put('/:id', async (req, res) => {
+  const connection = await getConnection()
+  try {
+    const { id } = req.params
+    const { name, strasse, hausnummer, plz, ort, land, telefon, website, status, zav_seit, notizen } = req.body
+    
+    if (!name || !telefon) {
+      return res.status(400).json({ message: 'Name und Telefon sind erforderlich' })
+    }
+    
+    const [result] = await connection.execute(
+      `UPDATE versicherer SET 
+       name = ?, strasse = ?, hausnummer = ?, plz = ?, ort = ?, land = ?, 
+       telefon = ?, website = ?, status = ?, zav_seit = ?, notizen = ?
+       WHERE id = ?`,
+      [name, strasse || null, hausnummer || null, plz || null, ort || null, land || 'Switzerland', telefon, website || null, status || 'Aktiv', zav_seit || null, notizen || null, id]
+    )
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Versicherer nicht gefunden' })
+    }
+    
+    res.json({ id, message: 'Versicherer aktualisiert' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Fehler beim Aktualisieren des Versicherers', error: error.message })
+  } finally {
+    connection.release()
+  }
+})
+
+// ============================================================
+// VERSICHERER - DELETE
+// ============================================================
+router.delete('/:id', async (req, res) => {
+  const connection = await getConnection()
+  try {
+    const { id } = req.params
+    
+    const [result] = await connection.execute(
+      'DELETE FROM versicherer WHERE id = ?',
+      [id]
+    )
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Versicherer nicht gefunden' })
+    }
+    
+    res.json({ message: 'Versicherer gelöscht' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Fehler beim Löschen des Versicherers', error: error.message })
+  } finally {
+    connection.release()
+  }
+})
+
+// ============================================================
+// VERSICHERER - GET SINGLE (MUSS GANZ AM ENDE SEIN!)
+// ============================================================
+router.get('/:id', async (req, res) => {
+  const connection = await getConnection()
+  try {
+    const { id } = req.params
+    console.log('Lade Versicherer mit ID:', id)
+    
+    const [rows] = await connection.execute(
+      'SELECT * FROM versicherer WHERE id = ?',
+      [id]
+    )
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Versicherer nicht gefunden' })
+    }
+    
+    res.json(rows[0])
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Error fetching versicherer', error: error.message })
   } finally {
     connection.release()
   }

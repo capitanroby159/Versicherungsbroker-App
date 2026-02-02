@@ -1,0 +1,161 @@
+.versicherer-list-container {
+  padding: 30px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.versicherer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.versicherer-header h1 {
+  color: #1f2937;
+  font-size: 2em;
+  margin: 0;
+}
+
+.versicherer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.versicherer-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.versicherer-card:hover {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  background: #f3f4f6;
+  padding: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #10b981;
+  font-size: 1.2em;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.status-aktiv {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-inaktiv {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-body p {
+  margin: 8px 0;
+  font-size: 0.9em;
+  color: #6b7280;
+}
+
+.card-body strong {
+  color: #374151;
+}
+
+.card-actions {
+  padding: 15px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 10px;
+}
+
+.card-actions button {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.85em;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.empty-state p {
+  color: #6b7280;
+  margin-bottom: 20px;
+  font-size: 1.1em;
+}
+
+.loading, .error-message {
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.btn-primary, .btn-secondary, .btn-danger {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #10b981;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #059669;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}

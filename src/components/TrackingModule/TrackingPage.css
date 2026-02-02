@@ -1,0 +1,128 @@
+/* src/components/Tracking/TrackingPage.css */
+
+.tracking-page {
+  padding: 20px;
+  background: #f9fafb;
+  min-height: 100vh;
+}
+
+.tracking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tracking-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #1f2937;
+}
+
+.tracking-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-new {
+  padding: 10px 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.btn-new:hover {
+  background: #059669;
+}
+
+.btn-project {
+  background: #3b82f6;
+}
+
+.btn-project:hover {
+  background: #2563eb;
+}
+
+/* Tabs */
+.tracking-tabs {
+  display: flex;
+  gap: 0;
+  background: white;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 20px;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tracking-tabs .tab {
+  flex: 1;
+  padding: 15px 20px;
+  background: #f9fafb;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.tracking-tabs .tab:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.tracking-tabs .tab.active {
+  background: white;
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+/* Content Area */
+.tracking-content {
+  background: white;
+  border-radius: 0 0 8px 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  .tracking-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .tracking-buttons {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-new {
+    width: 100%;
+    text-align: center;
+  }
+
+  .tracking-tabs {
+    flex-direction: column;
+  }
+
+  .tracking-tabs .tab {
+    border-bottom: 2px solid transparent;
+    border-left: 3px solid transparent;
+    padding: 12px 15px;
+  }
+
+  .tracking-tabs .tab.active {
+    border-bottom-color: transparent;
+    border-left-color: #10b981;
+  }
+}
