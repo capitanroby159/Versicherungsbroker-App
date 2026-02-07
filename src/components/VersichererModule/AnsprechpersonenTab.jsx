@@ -14,12 +14,10 @@ const AnsprechpersonenTab = ({ versicherer }) => {
 
   const loadData = async () => {
     try {
-      // Lade Ansprechpersonen
       const respAnspr = await fetch(`http://localhost:5000/api/versicherer/${versicherer.id}/ansprechpersonen`);
       const dataAnspr = await respAnspr.json();
       setAnsprechpersonen(dataAnspr);
 
-      // Lade Kontakte
       const respKont = await fetch(`http://localhost:5000/api/versicherer/${versicherer.id}/kontakte`);
       const dataKont = await respKont.json();
       setKontakte(dataKont);
@@ -78,7 +76,8 @@ const AnsprechpersonenTab = ({ versicherer }) => {
 
   if (loading) return <div>Lädt...</div>;
 
-  const types = ['Privatkunden', 'Firmenkunden', 'Pensionskasse'];
+  // 4 TYPEN ALS KACHELN NEBENEINANDER
+  const types = ['Brokerbetreuer', 'Privatkunden', 'Firmenkunden', 'Pensionskasse'];
 
   return (
     <div className="ansprechpersonen-tab">
@@ -88,47 +87,66 @@ const AnsprechpersonenTab = ({ versicherer }) => {
         Diese werden im Tracking-Modul automatisch geladen.
       </p>
 
-      {types.map(typ => {
-        const person = ansprechpersonen.find(a => a.typ === typ);
+      {/* 4er GRID - Jede Kachel ist ein Typ */}
+      <div className="types-grid">
+        {types.map(typ => {
+          const person = ansprechpersonen.find(a => a.typ === typ);
 
-        return (
-          <div key={typ} className="ansprechperson-card">
-            <div className="type-header">
-              {typ === 'Privatkunden' && '🟢'}
-              {typ === 'Firmenkunden' && '🟡'}
-              {typ === 'Pensionskasse' && '🟣'}
-              {' '} {typ}
+          return (
+            <div key={typ} className="type-card">
+              <div className="card-header">{typ}</div>
+
+              {person ? (
+                <div className="card-content">
+                  <div className="person-name">
+                    {person.vorname} {person.nachname}
+                  </div>
+                  <div className="person-position">
+                    {person.position}
+                  </div>
+
+                  {person.email && (
+                    <div className="contact-item">
+                      <label>Email:</label>
+                      <a href={`mailto:${person.email}`} className="contact-value">
+                        {person.email}
+                      </a>
+                    </div>
+                  )}
+
+                  {person.telefon && (
+                    <div className="contact-item">
+                      <label>Telefon:</label>
+                      <a href={`tel:${person.telefon}`} className="contact-value">
+                        {person.telefon}
+                      </a>
+                    </div>
+                  )}
+
+                  <button 
+                    className="btn-remove"
+                    onClick={() => handleRemove(typ)}
+                  >
+                    Entfernen
+                  </button>
+                </div>
+              ) : (
+                <div className="card-empty">
+                  <p>[-- Noch nicht zugewiesen --]</p>
+                  <button 
+                    className="btn-secondary"
+                    onClick={() => setSelectedType(typ)}
+                  >
+                    Zuweisen
+                  </button>
+                </div>
+              )}
             </div>
+          );
+        })}
+      </div>
 
-            {person ? (
-              <div className="person-info">
-                <p><strong>{person.vorname} {person.nachname}</strong></p>
-                <p>{person.position}</p>
-                <p>{person.email}</p>
-                <p>{person.telefon}</p>
-                {person.ist_hauptansprechperson && <p className="badge">☑️ Hauptansprechperson</p>}
-                <button 
-                  className="btn-danger"
-                  onClick={() => handleRemove(typ)}
-                >
-                  Entfernen
-                </button>
-              </div>
-            ) : (
-              <div className="no-person">
-                [-- Noch nicht zugewiesen --]
-                <button 
-                  className="btn-secondary"
-                  onClick={() => setSelectedType(typ)}
-                >
-                  Zuweisen
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })}
-
+      {/* MODAL */}
       {selectedType && (
         <div className="modal-overlay">
           <div className="modal">

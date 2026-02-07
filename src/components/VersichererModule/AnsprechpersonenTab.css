@@ -1,60 +1,196 @@
+/* ============================================================ */
+/* ANSPRECHPERSONEN TAB */
+/* ============================================================ */
+
 .ansprechpersonen-tab {
-  max-width: 900px;
+  padding: 20px;
 }
 
 .ansprechpersonen-tab h2 {
-  color: #10b981;
-  margin-bottom: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f2f5f;
+  margin: 0 0 8px 0;
 }
 
 .info-text {
-  color: #6b7280;
-  margin-bottom: 25px;
+  font-family: 'Lora', serif;
+  color: #475569;
+  margin: 0 0 25px 0;
   font-style: italic;
+  font-size: 14px;
 }
 
-.ansprechperson-card {
-  background: #f9fafb;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  margin-bottom: 20px;
+/* ============================================================ */
+/* 4er GRID - KACHELN NEBENEINANDER */
+/* ============================================================ */
+
+.types-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* ============================================================ */
+/* TYPE CARD */
+/* ============================================================ */
+
+.type-card {
+  border: 1px solid #e5e7eb;
+  background: white;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.type-header {
-  background: #10b981;
+.card-header {
+  background: #0f2f5f;
   color: white;
-  padding: 12px 15px;
-  font-weight: 600;
-  font-size: 1.05em;
+  padding: 14px 16px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
 }
 
-.person-info,
-.no-person {
-  padding: 15px;
+/* ============================================================ */
+/* CARD CONTENT - PERSON */
+/* ============================================================ */
+
+.card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
 }
 
-.person-info p {
-  margin: 8px 0;
-  color: #374151;
+.person-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f2f5f;
+  margin: 0;
 }
 
-.person-info .badge {
-  display: inline-block;
-  background: #d1fae5;
-  color: #065f46;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.85em;
-  font-weight: 600;
+.person-position {
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  color: #475569;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ============================================================ */
+/* CONTACT ITEMS - EMAIL & TELEFON */
+/* ============================================================ */
+
+.contact-item {
   margin-top: 8px;
 }
 
-.no-person {
-  text-align: center;
-  color: #6b7280;
-  padding: 25px 15px;
+.contact-item label {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f2f5f;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
 }
+
+.contact-value {
+  display: block;
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  color: #1e40af;
+  text-decoration: none;
+  word-break: break-all;
+  transition: all 0.2s;
+}
+
+.contact-value:hover {
+  text-decoration: underline;
+  color: #1e3a8a;
+}
+
+/* ============================================================ */
+/* EMPTY STATE */
+/* ============================================================ */
+
+.card-empty {
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  justify-content: center;
+}
+
+.card-empty p {
+  margin: 0;
+  color: #6b7280;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+}
+
+/* ============================================================ */
+/* BUTTONS */
+/* ============================================================ */
+
+.btn-remove,
+.btn-secondary,
+.btn-primary {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 8px 12px;
+}
+
+.btn-remove {
+  background: #ef4444;
+  color: white;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.btn-remove:hover {
+  background: #dc2626;
+}
+
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+  width: 100%;
+}
+
+.btn-secondary:hover {
+  background: #d1d5db;
+}
+
+.btn-primary {
+  background: #1e40af;
+  color: white;
+  padding: 10px 16px;
+}
+
+.btn-primary:hover {
+  background: #1e3a8a;
+}
+
+/* ============================================================ */
+/* MODAL */
+/* ============================================================ */
 
 .modal-overlay {
   position: fixed;
@@ -71,24 +207,36 @@
 
 .modal {
   background: white;
-  border-radius: 8px;
-  padding: 25px;
+  padding: 28px;
   max-width: 500px;
   width: 90%;
+  border: 1px solid #e5e7eb;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .modal h3 {
-  color: #374151;
-  margin-bottom: 15px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f2f5f;
+  margin: 0 0 18px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .modal select {
   width: 100%;
   padding: 10px;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
-  margin-bottom: 15px;
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.modal select:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
 .modal-actions {
@@ -96,4 +244,37 @@
   gap: 10px;
   justify-content: flex-end;
   margin-top: 20px;
+}
+
+/* ============================================================ */
+/* RESPONSIVE */
+/* ============================================================ */
+
+@media (max-width: 1200px) {
+  .types-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .types-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ansprechpersonen-tab {
+    padding: 16px;
+  }
+
+  .modal {
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary {
+    width: 100%;
+  }
 }

@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import KundenFormModal from './KundenFormModal'
 import './KundenTab.css'
 
 function KundenTab() {
   const [kunden, setKunden] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [showNewKundenForm, setShowNewKundenForm] = useState(false)
-  const [newKundeForm, setNewKundeForm] = useState({
-    vorname: '',
-    nachname: '',
-    typ: 'Privat',
-    email: '',
-    telefon: ''
-  })
+  const [showModal, setShowModal] = useState(false)
+  const [editingKunde, setEditingKunde] = useState(null)
+  const [filterVorname, setFilterVorname] = useState('')
+  const [filterNachname, setFilterNachname] = useState('')
+  const [filterOrt, setFilterOrt] = useState('')
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -26,7 +24,13 @@ function KundenTab() {
       setError(null)
       console.log('📥 Fetching kunden from /api/kunden...')
       
-      const response = await fetch('http://localhost:5000/api/kunden')
+      const token = localStorage.getItem('auth_token')
+      const response = await fetch('http://localhost:5000/api/kunden', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
@@ -51,64 +55,73 @@ function KundenTab() {
     }
   }
 
-  const handleNewKundeChange = (e) => {
-    const { name, value } = e.target
-    setNewKundeForm(prev => ({
-      ...prev,
-      [name]: value
-    }))
+  const handleNewKunde = () => {
+    console.log('➕ Creating new kunde')
+    setEditingKunde(null)
+    setShowModal(true)
   }
 
-  const handleCreateKunde = async (e) => {
-    e.preventDefault()
+  const handleEditKunde = (kunde) => {
+    console.log('✏️ Editing kunde:', kunde)
+    setEditingKunde(kunde)
+    setShowModal(true)
+  }
 
-    if (!newKundeForm.vorname.trim() || !newKundeForm.nachname.trim()) {
-      alert('❌ Vorname und Nachname sind erforderlich!')
+  const handleCloseModal = () => {
+    console.log('❌ Closing modal')
+    setShowModal(false)
+    setEditingKunde(null)
+  }
+
+  const handleSaveKunde = (savedKundeData) => {
+    // MODAL speichert schon in KundenFormModal.jsx!
+    // Hier machen wir NUR: Modal schließen + Daten refreshen
+    console.log('✅ Kunde gespeichert (vom Modal):', savedKundeData)
+    setShowModal(false)
+    setEditingKunde(null)
+    fetchKunden()  // Refresh die Liste
+    // KEINEN weiteren API Call machen!
+  }
+
+  const handleDeleteKunde = async (kundeId) => {
+    if (!confirm('Kunde wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) {
       return
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/kunden', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newKundeForm)
+      const token = localStorage.getItem('auth_token')
+      const response = await fetch(`http://localhost:5000/api/kunden/${kundeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       })
 
-      const data = await response.json()
-
       if (response.ok) {
-        console.log('✅ Kunde erstellt:', data)
-        alert('✅ Kunde erstellt!')
-        setShowNewKundenForm(false)
-        setNewKundeForm({
-          vorname: '',
-          nachname: '',
-          typ: 'Privat',
-          email: '',
-          telefon: ''
-        })
+        alert('✅ Kunde gelöscht!')
         fetchKunden()
       } else {
-        alert('❌ Fehler: ' + (data.message || data.error))
+        alert('❌ Fehler beim Löschen')
       }
     } catch (error) {
-      console.error('❌ Error creating kunde:', error)
-      alert('❌ Fehler beim Erstellen: ' + error.message)
+      console.error('Error deleting kunde:', error)
+      alert('❌ Fehler: ' + error.message)
     }
   }
 
-  const getTypeIcon = (typ) => {
-    const typeVal = typ || 'Privat'
-    if (typeVal === 'Privat') return '👤'
-    if (typeVal === 'Geschäft') return '🏢'
-    if (typeVal === 'Partner') return '🤝'
-    return '👤'
-  }
-
-  const getTypeClass = (typ) => {
-    const typeVal = (typ || 'Privat').toLowerCase()
-    return typeVal
-  }
+  // Filter
+  const filteredKunden = kunden.filter(kunde => {
+    const vornameLower = (kunde.vorname || '').toLowerCase()
+    const nachnameLower = (kunde.nachname || '').toLowerCase()
+    const ortLower = (kunde.ort || '').toLowerCase()
+    
+    return (
+      vornameLower.includes(filterVorname.toLowerCase()) &&
+      nachnameLower.includes(filterNachname.toLowerCase()) &&
+      ortLower.includes(filterOrt.toLowerCase())
+    )
+  })
 
   if (loading) {
     return <div className="kunden-tab"><p>⏳ Lade Kunden...</p></div>
@@ -118,8 +131,8 @@ function KundenTab() {
     <div className="kunden-tab">
       <div className="kunden-header">
         <h2>👥 Kunden</h2>
-        <button className="button-new-kunde" onClick={() => setShowNewKundenForm(true)}>
-          + Neue Kunden
+        <button className="button-new-kunde" onClick={handleNewKunde}>
+          + Neuer Kunde
         </button>
       </div>
 
@@ -130,106 +143,133 @@ function KundenTab() {
         </div>
       )}
 
-      {/* NEW KUNDE FORM */}
-      {showNewKundenForm && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>Neue Kunden erfassen</h3>
-            <form onSubmit={handleCreateKunde} className="new-kunde-form">
-              <div className="form-group">
-                <label>Vorname *</label>
-                <input
-                  type="text"
-                  name="vorname"
-                  value={newKundeForm.vorname}
-                  onChange={handleNewKundeChange}
-                  required
-                  placeholder="z.B. Max"
-                />
-              </div>
-              <div className="form-group">
-                <label>Nachname *</label>
-                <input
-                  type="text"
-                  name="nachname"
-                  value={newKundeForm.nachname}
-                  onChange={handleNewKundeChange}
-                  required
-                  placeholder="z.B. Muster"
-                />
-              </div>
-              <div className="form-group">
-                <label>Kundentyp</label>
-                <select name="typ" value={newKundeForm.typ} onChange={handleNewKundeChange}>
-                  <option value="Privat">👤 Privat</option>
-                  <option value="Geschäft">🏢 Geschäft</option>
-                  <option value="Partner">🤝 Partner</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={newKundeForm.email}
-                  onChange={handleNewKundeChange}
-                  placeholder="max@example.com"
-                />
-              </div>
-              <div className="form-group">
-                <label>Telefon</label>
-                <input
-                  type="tel"
-                  name="telefon"
-                  value={newKundeForm.telefon}
-                  onChange={handleNewKundeChange}
-                  placeholder="+41 44 123 45 67"
-                />
-              </div>
-
-              <div className="modal-actions">
-                <button type="submit" className="button-primary">✅ Erstellen</button>
-                <button type="button" className="button-secondary" onClick={() => setShowNewKundenForm(false)}>
-                  ❌ Abbrechen
-                </button>
-              </div>
-            </form>
+      {/* FILTER SECTION */}
+      {kunden.length > 0 && (
+        <div className="filter-section">
+          <div className="filter-group">
+            <input 
+              type="text" 
+              placeholder="Filter nach Vorname..." 
+              value={filterVorname}
+              onChange={(e) => setFilterVorname(e.target.value)}
+              className="filter-input"
+            />
+          </div>
+          <div className="filter-group">
+            <input 
+              type="text" 
+              placeholder="Filter nach Nachname..." 
+              value={filterNachname}
+              onChange={(e) => setFilterNachname(e.target.value)}
+              className="filter-input"
+            />
+          </div>
+          <div className="filter-group">
+            <input 
+              type="text" 
+              placeholder="Filter nach Ort..." 
+              value={filterOrt}
+              onChange={(e) => setFilterOrt(e.target.value)}
+              className="filter-input"
+            />
           </div>
         </div>
       )}
 
-      {/* KUNDEN LIST */}
-      {kunden.length === 0 ? (
+      {filteredKunden.length === 0 ? (
         <div className="empty-state">
-          <p>📭 Keine Kunden erfasst</p>
-          <button className="button-new-kunde" onClick={() => setShowNewKundenForm(true)}>
-            + Erste Kunden erstellen
+          <p>📭 {kunden.length === 0 ? 'Keine Kunden erfasst' : 'Keine Kunden entsprechen den Filterkriterien'}</p>
+          <button className="button-new-kunde" onClick={handleNewKunde}>
+            + {kunden.length === 0 ? 'Ersten Kunden erstellen' : 'Neuer Kunde'}
           </button>
         </div>
       ) : (
-        <div className="kunden-list">
-          {kunden.map(kunde => (
-            <div 
-              key={kunde.id} 
-              className="kunde-card" 
-              onClick={() => {
-                console.log('🔗 Navigating to /kunden/' + kunde.id)
-                navigate(`/kunden/${kunde.id}`)
-              }}
-            >
-              <div className="kunde-card-header">
-                <h3>{kunde.vorname} {kunde.nachname}</h3>
-                <span className={`type-badge ${getTypeClass(kunde.typ)}`}>
-                  {getTypeIcon(kunde.typ)} {kunde.typ || 'Privat'}
-                </span>
-              </div>
-              <div className="kunde-card-details">
-                {kunde.email && <p>📧 {kunde.email}</p>}
-                {kunde.telefon && <p>📞 {kunde.telefon}</p>}
-                {kunde.status && <p>📌 {kunde.status}</p>}
-              </div>
-            </div>
-          ))}
+        <div className="kunden-table-wrapper">
+          <table className="kunden-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Telefon</th>
+                <th>Ort</th>
+                <th>Status</th>
+                <th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredKunden.map(kunde => (
+                <tr key={kunde.id}>
+                  <td>
+                    <button 
+                      className="kunde-name-link"
+                      onClick={() => navigate(
+                        kunde.kundentyp === 'Firma' 
+                          ? `/kunden/firma/${kunde.id}` 
+                          : `/kunden/${kunde.id}`
+                      )}
+                    >
+                      {kunde.kundentyp === 'Firma' && kunde.firma_name
+                        ? kunde.firma_name
+                        : (kunde.vorname && kunde.nachname 
+                            ? `${kunde.vorname} ${kunde.nachname}`
+                            : kunde.firma_name || 'Unbekannt'
+                          )
+                      }
+                    </button>
+                  </td>
+                  <td>
+                    {kunde.emails && Array.isArray(kunde.emails) && kunde.emails.length > 0 
+                      ? (typeof kunde.emails[0] === 'object' ? kunde.emails[0].email : kunde.emails[0])
+                      : '-'
+                    }
+                  </td>
+                  <td>
+                    {kunde.telefone && Array.isArray(kunde.telefone) && kunde.telefone.length > 0 
+                      ? (typeof kunde.telefone[0] === 'object' ? kunde.telefone[0].telefon : kunde.telefone[0])
+                      : '-'
+                    }
+                  </td>
+                  <td>{kunde.ort || '-'}</td>
+                  <td>
+                    <span className={`status-badge ${(kunde.status || 'Aktiv').toLowerCase()}`}>
+                      {kunde.status || 'Aktiv'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="actions-cell">
+                      <button 
+                        className="button-edit"
+                        onClick={() => handleEditKunde(kunde)}
+                      >
+                        Bearbeiten
+                      </button>
+                      <button 
+                        className="button-delete"
+                        onClick={() => handleDeleteKunde(kunde.id)}
+                      >
+                        Löschen
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL - SHOWN WHEN showModal = true */}
+      {/* ============================================================ */}
+      {showModal && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <KundenFormModal 
+              kunde={editingKunde}
+              onCancel={handleCloseModal}
+              onSaveSuccess={handleSaveKunde}
+            />
+          </div>
         </div>
       )}
     </div>

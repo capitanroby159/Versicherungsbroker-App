@@ -1,41 +1,105 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import './styles/globals.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/Auth/ProtectedRoute'
+import LoginPage from './pages/Auth/LoginPage'
+import Layout from './components/Layout/Layout'
+
+// Pages
 import KundenTab from './components/KundenTab'
 import ImmobildienTab from './components/ImmobildienTab'
-import PoliceTab from './components/PoliceTab'
-import KundenDetailsPage from './components/KundenDetailsPage'
+import PolicenTab from './components/PolicenTab'
+import KundenDetailsPage from './components/KundenDetailsPage'  // ← HIER
+import FirmenDetailsPage from './components/FirmenDetailsPage'  // ← HIER auch components!
 import VersichererList from './pages/Versicherer/VersichererList'
 import VersichererDetail from './pages/Versicherer/VersichererDetail'
-import './App.css'
-import TrackingPage from './components/TrackingModule/TrackingPage';
+import TrackingPage from './components/TrackingModule/TrackingPage'
 
 function App() {
   return (
-    <Router>
-      <div className="app">
-        <header className="header">
-          <h1>🏢 Broker App</h1>
-          <nav className="nav">
-  <Link to="/" className="nav-link">Kunden</Link>
-  <Link to="/immobilien" className="nav-link">Immobilien</Link>
-  <Link to="/policen" className="nav-link">Policen</Link>
-  <Link to="/versicherer" className="nav-link">🏢 Versicherer</Link>
-  <Link to="/tracking" className="nav-link">📍 Tracking</Link>
-</nav>
-        </header>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* PUBLIC ROUTES */}
+          <Route path="/login" element={<LoginPage />} />
 
-        <main className="main">
-          <Routes>
-            <Route path="/" element={<KundenTab />} />
-            <Route path="/kunden/:id" element={<KundenDetailsPage />} />
-            <Route path="/immobilien" element={<ImmobildienTab />} />
-            <Route path="/policen" element={<PoliceTab />} />
-            <Route path="/versicherer/:id" element={<VersichererDetail />} />
-            <Route path="/versicherer" element={<VersichererList />} />
-<Route path="/tracking" element={<TrackingPage />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+          {/* PROTECTED ROUTES */}
+          <Route element={<Layout />}>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <KundenTab />
+                </ProtectedRoute>
+              }
+            />
+            
+            {/* WICHTIG: /kunden/firma/:id MUSS VOR /kunden/:id kommen! */}
+            <Route
+              path="/kunden/firma/:id"
+              element={
+                <ProtectedRoute>
+                  <FirmenDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/kunden/:id"
+              element={
+                <ProtectedRoute>
+                  <KundenDetailsPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/immobilien"
+              element={
+                <ProtectedRoute>
+                  <ImmobildienTab />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/policen"
+              element={
+                <ProtectedRoute>
+                  <PolicenTab />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/versicherer"
+              element={
+                <ProtectedRoute>
+                  <VersichererList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/versicherer/:id"
+              element={
+                <ProtectedRoute>
+                  <VersichererDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/tracking"
+              element={
+                <ProtectedRoute>
+                  <TrackingPage />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+
+          {/* 404 */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 

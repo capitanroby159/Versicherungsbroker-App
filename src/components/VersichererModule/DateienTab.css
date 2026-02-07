@@ -1,3 +1,7 @@
+/* ============================================================ */
+/* DATEIEN TAB */
+/* ============================================================ */
+
 .dateien-tab {
   padding: 20px;
 }
@@ -7,89 +11,134 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 25px;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
   padding-bottom: 15px;
 }
 
 .dateien-header h2 {
-  color: #10b981;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f2f5f;
   margin: 0;
 }
 
-/* Upload Form */
-.upload-form {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 25px;
+/* ============================================================ */
+/* MODAL */
+/* ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
+.modal-content {
+  background: white;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f2f5f;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================ */
+/* FORM GROUPS */
+/* ============================================================ */
+
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
   display: block;
-  font-weight: 600;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   margin-bottom: 6px;
-  color: #374151;
+  color: #0f2f5f;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .form-group input,
-.form-group select,
-.form-group textarea {
+.form-group select {
   width: 100%;
   padding: 10px;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 0.95em;
+  font-family: 'Lora', serif;
+  font-size: 14px;
   box-sizing: border-box;
 }
 
 .form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-group select:focus {
   outline: none;
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 15px;
 }
 
-.form-actions {
+/* ============================================================ */
+/* MODAL ACTIONS */
+/* ============================================================ */
+
+.modal-actions {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  margin-top: 25px;
+  justify-content: flex-end;
 }
 
 .btn-primary,
 .btn-secondary,
-.btn-danger,
-.btn-small {
-  padding: 10px 16px;
+.btn-danger {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   border: none;
-  border-radius: 6px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .btn-primary {
-  background: #10b981;
+  padding: 10px 16px;
+  background: #1e40af;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #059669;
+  background: #1e3a8a;
 }
 
 .btn-secondary {
+  padding: 10px 16px;
   background: #e5e7eb;
   color: #374151;
 }
@@ -99,28 +148,19 @@
 }
 
 .btn-danger {
+  padding: 8px 12px;
   background: #ef4444;
   color: white;
-  padding: 6px 12px;
-  font-size: 0.85em;
 }
 
 .btn-danger:hover {
   background: #dc2626;
 }
 
-.btn-small {
-  padding: 6px 12px;
-  font-size: 0.85em;
-  background: #3b82f6;
-  color: white;
-}
+/* ============================================================ */
+/* DATEIEN LISTE */
+/* ============================================================ */
 
-.btn-small:hover {
-  background: #2563eb;
-}
-
-/* Dateien Liste */
 .dateien-list {
   display: flex;
   flex-direction: column;
@@ -132,19 +172,18 @@
   color: #9ca3af;
   padding: 40px 20px;
   background: #f3f4f6;
-  border-radius: 8px;
   font-style: italic;
+  font-family: 'Lora', serif;
 }
 
 .datei-item {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 15px;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .datei-item:hover {
@@ -162,43 +201,58 @@
 }
 
 .datei-name {
-  font-weight: 600;
-  color: #1f2937;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #0f2f5f;
   margin: 0 0 5px 0;
-  font-size: 1.05em;
+  font-size: 15px;
 }
 
 .datei-type {
-  color: #6b7280;
+  font-family: 'Lora', serif;
+  color: #475569;
   margin: 3px 0;
-  font-size: 0.9em;
+  font-size: 13px;
 }
 
 .datei-desc {
-  color: #6b7280;
+  font-family: 'Lora', serif;
+  color: #475569;
   margin: 5px 0;
   font-style: italic;
+  font-size: 13px;
 }
 
 .datei-validity {
+  font-family: 'Lora', serif;
   color: #7c3aed;
   margin: 5px 0;
-  font-size: 0.9em;
+  font-size: 13px;
 }
 
-.datei-date {
-  color: #9ca3af;
-  margin: 5px 0 0 0;
-  font-size: 0.85em;
+.datei-link {
+  color: #1e40af;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  margin-top: 8px;
+  display: inline-block;
+  font-size: 12px;
+}
+
+.datei-link:hover {
+  text-decoration: underline;
 }
 
 .expired-badge {
   background: #ef4444;
   color: white;
   padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.8em;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
 }
 
 .datei-actions {
@@ -207,32 +261,42 @@
   margin-left: 15px;
 }
 
-/* Fehler-Meldungen */
+/* ============================================================ */
+/* ERROR/SUCCESS MESSAGES */
+/* ============================================================ */
+
 .error-message {
   background: #fee2e2;
   color: #991b1b;
   padding: 12px;
-  border-radius: 6px;
   margin-bottom: 15px;
-  border-left: 4px solid #dc2626;
+  border-left: 3px solid #dc2626;
+  font-family: 'Lora', serif;
+  font-size: 14px;
 }
 
 .success-message {
   background: #dcfce7;
   color: #166534;
   padding: 12px;
-  border-radius: 6px;
   margin-bottom: 15px;
-  border-left: 4px solid #22c55e;
+  border-left: 3px solid #22c55e;
+  font-family: 'Lora', serif;
+  font-size: 14px;
 }
 
 .loading {
   text-align: center;
   padding: 20px;
   color: #6b7280;
+  font-family: 'Lora', serif;
+  font-size: 14px;
 }
 
-/* Responsive */
+/* ============================================================ */
+/* RESPONSIVE */
+/* ============================================================ */
+
 @media (max-width: 768px) {
   .datei-item {
     flex-direction: column;
@@ -241,24 +305,28 @@
 
   .datei-actions {
     margin-left: 0;
-    margin-top: 10px;
+    margin-top: 12px;
     width: 100%;
   }
 
-  .btn-small {
-    flex: 1;
+  .btn-danger {
+    width: 100%;
   }
 
   .form-row {
     grid-template-columns: 1fr;
   }
 
-  .form-actions {
+  .modal-actions {
     flex-direction: column;
   }
 
   .btn-primary,
   .btn-secondary {
     width: 100%;
+  }
+
+  .modal-content {
+    padding: 20px;
   }
 }

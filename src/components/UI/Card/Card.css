@@ -1,0 +1,62 @@
+.card {
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-gray);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-light-blue);
+}
+
+.card-header {
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: var(--border-width) solid var(--color-border-gray);
+}
+
+.card-header h1,
+.card-header h2,
+.card-header h3 {
+  margin-bottom: 0;
+}
+
+.card-body {
+  margin-bottom: var(--spacing-lg);
+}
+
+.card-body p:last-child {
+  margin-bottom: 0;
+}
+
+.card-footer {
+  padding-top: var(--spacing-lg);
+  border-top: var(--border-width) solid var(--color-border-gray);
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: flex-end;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: var(--spacing-lg);
+  }
+
+  .card-header {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+  }
+
+  .card-footer {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .card-footer .btn {
+    flex: 1;
+  }
+}

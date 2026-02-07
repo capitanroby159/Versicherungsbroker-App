@@ -13,14 +13,11 @@ const VersichererDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('stammdaten');
+  const [showEditForm, setShowEditForm] = useState(false);
   
-  // Überprüfe ob es eine neue oder bestehende Versicherer ist
   const isNew = id === 'new';
 
   useEffect(() => {
-    console.log('VersichererDetail mounted. ID:', id, 'isNew:', isNew);
-    
-    // Nur laden wenn ID existiert und nicht 'new' ist
     if (!isNew && id && id !== 'undefined') {
       fetchVersicherer();
     } else {
@@ -34,7 +31,6 @@ const VersichererDetail = () => {
       setLoading(true);
       setError(null);
       
-      console.log('Lade Versicherer mit ID:', id);
       const response = await fetch(`http://localhost:5000/api/versicherer/${id}`);
       
       if (!response.ok) {
@@ -42,7 +38,6 @@ const VersichererDetail = () => {
       }
       
       const data = await response.json();
-      console.log('Versicherer geladen:', data);
       setVersicherer(data);
     } catch (err) {
       console.error('Fehler beim Laden:', err);
@@ -54,18 +49,38 @@ const VersichererDetail = () => {
   };
 
   const handleSaveSuccess = (newVersicherer) => {
-    console.log('handleSaveSuccess:', newVersicherer);
     setVersicherer(newVersicherer);
+    setShowEditForm(false);
     
-    // Wenn neu erstellt, navigiere zur Detail-Seite
     if (isNew && newVersicherer.id) {
       navigate(`/versicherer/${newVersicherer.id}`);
     }
   };
 
   const handleBack = () => {
-    console.log('Navigiere zurück zu /versicherer');
     navigate('/versicherer');
+  };
+
+  const handleDeleteVersicherer = async () => {
+    if (!confirm('Versicherer wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/versicherer/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        alert('✅ Versicherer gelöscht!');
+        navigate('/versicherer');
+      } else {
+        alert('❌ Fehler beim Löschen');
+      }
+    } catch (error) {
+      console.error('Error deleting versicherer:', error);
+      alert('❌ Fehler: ' + error.message);
+    }
   };
 
   if (loading) return <div className="loading">Lädt...</div>;
@@ -73,75 +88,187 @@ const VersichererDetail = () => {
   const title = isNew ? 'Neuer Versicherer' : (versicherer?.name || 'Versicherer');
 
   return (
-    <div className="versicherer-detail-container">
-      <div className="detail-header">
-        <h1>🏢 {title}</h1>
-        <button 
-          className="btn-secondary"
-          onClick={handleBack}
-        >
-          ← Zurück zur Übersicht
-        </button>
-      </div>
+    <div className="versicherer-detail-wrapper">
+      {isNew ? (
+        // NEU: Nur Formular
+        <div className="page-container">
+          <div className="details-header">
+            <div className="header-left">
+              <button className="back-button" onClick={handleBack}>← Zurück</button>
+              <h1>{title}</h1>
+            </div>
+          </div>
 
-      {/* TAB SYSTEM */}
-      <div className="tab-system">
-        <button 
-          className={`tab ${activeTab === 'stammdaten' ? 'active' : ''}`}
-          onClick={() => setActiveTab('stammdaten')}
-        >
-          📍 Stammdaten
-        </button>
-        
-        {/* Andere Tabs nur wenn nicht neu */}
-        {!isNew && (
-          <>
+          {error && <div className="error-message">{error}</div>}
+
+          <div className="details-page-content">
+            <VersichererForm 
+              versicherer={null}
+              isNew={true}
+              onSaveSuccess={handleSaveSuccess}
+            />
+          </div>
+        </div>
+      ) : (
+        // BESTEHEND: Mit Tabs
+        <div className="page-container">
+          {/* HEADER */}
+          <div className="details-header">
+            <div className="header-left">
+              <button className="back-button" onClick={handleBack}>← Zurück</button>
+              <h1>{title}</h1>
+            </div>
+            <div className="header-actions">
+              <button className="button-edit-small" onClick={() => setShowEditForm(true)}>
+                Bearbeiten
+              </button>
+              <button className="button-delete-small" onClick={handleDeleteVersicherer}>
+                Löschen
+              </button>
+            </div>
+          </div>
+
+          {/* TAB NAVIGATION - ZWISCHEN Header und Content */}
+          <div className="tab-navigation">
             <button 
-              className={`tab ${activeTab === 'ansprechpersonen' ? 'active' : ''}`}
+              className={`tab-btn ${activeTab === 'stammdaten' ? 'active' : ''}`}
+              onClick={() => setActiveTab('stammdaten')}
+            >
+              📍 Stammdaten
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'ansprechpersonen' ? 'active' : ''}`}
               onClick={() => setActiveTab('ansprechpersonen')}
             >
               👥 Ansprechpersonen
             </button>
             <button 
-              className={`tab ${activeTab === 'kontakte' ? 'active' : ''}`}
+              className={`tab-btn ${activeTab === 'kontakte' ? 'active' : ''}`}
               onClick={() => setActiveTab('kontakte')}
             >
               👔 Kontakte
             </button>
             <button 
-              className={`tab ${activeTab === 'dateien' ? 'active' : ''}`}
+              className={`tab-btn ${activeTab === 'dateien' ? 'active' : ''}`}
               onClick={() => setActiveTab('dateien')}
             >
               📄 Dateien
             </button>
-          </>
-        )}
-      </div>
+          </div>
 
-      {/* TAB CONTENT */}
-      <div className="tab-content">
-        {error && <div className="error-message">{error}</div>}
+          {/* EDIT MODAL */}
+          {showEditForm && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <button className="modal-close" onClick={() => setShowEditForm(false)}>✕</button>
+                <VersichererForm 
+                  versicherer={versicherer}
+                  isNew={false}
+                  onSaveSuccess={handleSaveSuccess}
+                />
+              </div>
+            </div>
+          )}
 
-        {activeTab === 'stammdaten' && (
-          <VersichererForm 
-            versicherer={versicherer}
-            isNew={isNew}
-            onSaveSuccess={handleSaveSuccess}
-          />
-        )}
+          {/* PAGE CONTENT */}
+          <div className="details-page-content">
+            {error && <div className="error-message">{error}</div>}
 
-        {activeTab === 'ansprechpersonen' && versicherer && (
-          <AnsprechpersonenTab versicherer={versicherer} />
-        )}
+            {/* STAMMDATEN SECTION */}
+            {activeTab === 'stammdaten' && (
+              <>
+                {/* Grundinfo */}
+                <div className="form-section">
+                  <h3>📍 Grundinformationen</h3>
+                  <div className="form-row-3">
+                    <div className="detail-field">
+                      <label>Name</label>
+                      <p>{versicherer?.name || '-'}</p>
+                    </div>
+                    <div className="detail-field">
+                      <label>Website</label>
+                      <p>{versicherer?.website ? <a href={versicherer.website} target="_blank" rel="noopener noreferrer">🔗 {versicherer.website}</a> : '-'}</p>
+                    </div>
+                    <div className="detail-field">
+                      <label>Telefon</label>
+                      <p>{versicherer?.telefon || '-'}</p>
+                    </div>
+                  </div>
+                </div>
 
-        {activeTab === 'kontakte' && versicherer && (
-          <KontakteTab versicherer={versicherer} />
-        )}
+                {/* Adresse */}
+                <div className="form-section">
+                  <h3>🏠 Adresse</h3>
+                  <div className="form-row-3">
+                    <div className="detail-field">
+                      <label>Strasse</label>
+                      <p>{versicherer?.strasse || '-'}</p>
+                    </div>
+                    <div className="detail-field">
+                      <label>Hausnummer</label>
+                      <p>{versicherer?.hausnummer || '-'}</p>
+                    </div>
+                    <div className="detail-field">
+                      <label>Ort</label>
+                      <p>{versicherer?.ort || '-'}</p>
+                    </div>
+                  </div>
+                  <div className="form-row-3">
+                    <div className="detail-field">
+                      <label>Postleitzahl</label>
+                      <p>{versicherer?.plz || '-'}</p>
+                    </div>
+                    <div className="detail-field">
+                      <label>Land</label>
+                      <p>{versicherer?.land || '-'}</p>
+                    </div>
+                  </div>
+                </div>
 
-        {activeTab === 'dateien' && versicherer && (
-          <DateienTab versicherer={versicherer} />
-        )}
-      </div>
+                {/* Status */}
+                <div className="form-section">
+                  <h3>📊 Status & Verwaltung</h3>
+                  <div className="form-row-2">
+                    <div className="detail-field">
+                      <label>Status</label>
+                      <p>{versicherer?.status === 'Aktiv' ? '🟢 Aktiv' : '⚫ Inaktiv'}</p>
+                    </div>
+                    <div className="detail-field">
+                      <label>ZAV seit</label>
+                      <p>{versicherer?.zav_seit ? new Date(versicherer.zav_seit).toLocaleDateString('de-CH') : '-'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notizen */}
+                {versicherer?.notizen && (
+                  <div className="form-section">
+                    <h3>📝 Notizen</h3>
+                    <div className="detail-field">
+                      <p style={{ whiteSpace: 'pre-wrap' }}>{versicherer.notizen}</p>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* ANSPRECHPERSONEN TAB */}
+            {activeTab === 'ansprechpersonen' && versicherer && (
+              <AnsprechpersonenTab versicherer={versicherer} />
+            )}
+
+            {/* KONTAKTE TAB */}
+            {activeTab === 'kontakte' && versicherer && (
+              <KontakteTab versicherer={versicherer} />
+            )}
+
+            {/* DATEIEN TAB */}
+            {activeTab === 'dateien' && versicherer && (
+              <DateienTab versicherer={versicherer} />
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

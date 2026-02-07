@@ -1,161 +1,303 @@
-.versicherer-list-container {
-  padding: 30px;
-  max-width: 1400px;
-  margin: 0 auto;
+/* ============================================================ */
+/* PAGE WRAPPER */
+/* ============================================================ */
+
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  background: white;
+  padding: 0;
 }
 
-.versicherer-header {
+.page-container {
+  max-width: 1400px;
+  width: 100%;
+  padding: 0;
+}
+
+/* ============================================================ */
+/* HEADER */
+/* ============================================================ */
+
+.list-header {
+  background: linear-gradient(135deg, #0f2f5f 0%, #1e40af 100%);
+  padding: 32px 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  border-bottom: 1px solid #d1d5db;
 }
 
-.versicherer-header h1 {
-  color: #1f2937;
-  font-size: 2em;
+.header-left h1 {
+  color: white;
   margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
 }
 
-.versicherer-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+/* ============================================================ */
+/* SEARCH */
+/* ============================================================ */
+
+.search-container {
+  padding: 24px 48px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.versicherer-card {
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* ============================================================ */
+/* TABLE */
+/* ============================================================ */
+
+.versicherer-table {
+  padding: 24px 48px;
+}
+
+.versicherer-table table {
+  width: 100%;
+  border-collapse: collapse;
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.versicherer-card:hover {
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-  transform: translateY(-2px);
+.versicherer-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.card-header {
-  background: #f3f4f6;
-  padding: 15px;
+.versicherer-table thead th {
+  padding: 16px;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f2f5f;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.versicherer-table tbody tr {
   border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  transition: all 0.2s;
 }
 
-.card-header h3 {
-  margin: 0;
-  color: #10b981;
-  font-size: 1.2em;
+.versicherer-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.versicherer-table tbody tr.inactive {
+  opacity: 0.6;
+}
+
+.versicherer-table tbody td {
+  padding: 14px 16px;
+  font-family: 'Lora', serif;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.versicherer-table tbody td strong {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  color: #0f2f5f;
 }
 
 .status-badge {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8em;
-  font-weight: 600;
+  display: inline-block;
+  padding: 4px 8px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
 }
 
-.status-aktiv {
+.status-badge.status-aktiv {
   background: #d1fae5;
   color: #065f46;
 }
 
-.status-inaktiv {
+.status-badge.status-inaktiv {
   background: #f3f4f6;
-  color: #6b7280;
+  color: #475569;
 }
 
-.card-body {
-  padding: 15px;
-}
-
-.card-body p {
-  margin: 8px 0;
-  font-size: 0.9em;
-  color: #6b7280;
-}
-
-.card-body strong {
-  color: #374151;
-}
-
-.card-actions {
-  padding: 15px;
-  border-top: 1px solid #e5e7eb;
-  display: flex;
-  gap: 10px;
-}
-
-.card-actions button {
-  flex: 1;
-  padding: 8px 12px;
-  font-size: 0.85em;
-}
+/* ============================================================ */
+/* EMPTY STATE */
+/* ============================================================ */
 
 .empty-state {
-  grid-column: 1 / -1;
   text-align: center;
   padding: 60px 20px;
   background: #f9fafb;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 .empty-state p {
+  margin: 0;
   color: #6b7280;
-  margin-bottom: 20px;
-  font-size: 1.1em;
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-style: italic;
 }
 
-.loading, .error-message {
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
-  margin: 20px 0;
-}
+/* ============================================================ */
+/* BUTTONS */
+/* ============================================================ */
 
-.error-message {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-.btn-primary, .btn-secondary, .btn-danger {
-  padding: 10px 20px;
+.btn-primary,
+.btn-small,
+.btn-danger {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
   border: none;
-  border-radius: 6px;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-size: 12px;
 }
 
 .btn-primary {
-  background: #10b981;
+  padding: 10px 20px;
+  background: #1e40af;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #059669;
+  background: #1e3a8a;
 }
 
-.btn-secondary {
+.btn-small {
+  padding: 6px 12px;
   background: #e5e7eb;
   color: #374151;
+  margin-right: 6px;
 }
 
-.btn-secondary:hover {
+.btn-small:hover {
   background: #d1d5db;
 }
 
-.btn-danger {
+.btn-small.btn-danger {
   background: #ef4444;
   color: white;
+  margin-right: 0;
 }
 
-.btn-danger:hover {
+.btn-small.btn-danger:hover {
   background: #dc2626;
+}
+
+/* ============================================================ */
+/* RESULT COUNT */
+/* ============================================================ */
+
+.result-count {
+  padding: 16px 48px;
+  color: #6b7280;
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  text-align: right;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ============================================================ */
+/* LOADING */
+/* ============================================================ */
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-family: 'Lora', serif;
+  font-size: 16px;
+}
+
+/* ============================================================ */
+/* RESPONSIVE */
+/* ============================================================ */
+
+@media (max-width: 1200px) {
+  .list-header {
+    padding: 24px 32px;
+  }
+
+  .search-container {
+    padding: 20px 32px;
+  }
+
+  .versicherer-table {
+    padding: 20px 32px;
+  }
+
+  .result-count {
+    padding: 12px 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+  }
+
+  .list-header button {
+    width: 100%;
+  }
+
+  .search-container {
+    padding: 16px 24px;
+  }
+
+  .search-input {
+    max-width: 100%;
+  }
+
+  .versicherer-table {
+    padding: 16px 0;
+    overflow-x: auto;
+  }
+
+  .versicherer-table table {
+    font-size: 13px;
+    border: none;
+  }
+
+  .versicherer-table thead th {
+    padding: 12px 8px;
+  }
+
+  .versicherer-table tbody td {
+    padding: 10px 8px;
+  }
+
+  .btn-small {
+    margin-right: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .result-count {
+    padding: 12px 24px;
+  }
 }

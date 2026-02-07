@@ -1,212 +1,250 @@
 import express from 'express'
-import { getConnection } from '../database.js'
+import { authenticateToken } from '../middleware/auth.js'
+import { logMutations } from '../utils/mutations.js'
 
 const router = express.Router()
 
-// ✅ NEU: GET alle gültigen Versicherer (für Dropdowns)
-router.get('/valid-versicherer', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const [rows] = await connection.execute(
-      'SELECT id, name FROM versicherer ORDER BY name'
-    )
-    res.json(rows)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Error fetching versicherer', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// ✅ NEU: GET alle gültigen Branchen (für Dropdowns)
-router.get('/valid-branchen', async (req, res) => {
-  const connection = await getConnection()
-  try {
-    const [rows] = await connection.execute(
-      'SELECT id, name FROM branchen ORDER BY name'
-    )
-    res.json(rows)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Error fetching branchen', error: error.message })
-  } finally {
-    connection.release()
-  }
-})
-
-// GET all policen
+/**
+ * GET /api/policen
+ */
 router.get('/', async (req, res) => {
-  const connection = await getConnection()
   try {
-    const [rows] = await connection.execute(
-      'SELECT p.*, k.vorname, k.nachname, v.name as versicherer_name FROM policen p LEFT JOIN kunden k ON p.kunde_id = k.id LEFT JOIN versicherer v ON p.versicherer_id = v.id ORDER BY p.kunde_id'
-    )
-    res.json(rows)
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Error fetching policen', error: error.message })
-  } finally {
+    const { kunde_id } = req.query
+    const connection = await req.pool.getConnection()
+
+    let query = `
+      SELECT 
+        p.*,
+        s.name as sparten_name,
+        v.name as versicherer_name
+      FROM policen p
+      LEFT JOIN sparten s ON p.sparte_id = s.id
+      LEFT JOIN versicherer v ON p.versicherer_id = v.id
+    `
+    let params = []
+
+    if (kunde_id) {
+      query += ' WHERE p.kunde_id = ?'
+      params.push(kunde_id)
+    }
+
+    query += ' ORDER BY p.created_at DESC'
+
+    const [rows] = await connection.query(query, params)
     connection.release()
+
+    res.json(rows || [])
+  } catch (err) {
+    console.error('Fehler beim Abrufen der Policen:', err)
+    res.status(500).json({ error: 'Fehler beim Abrufen der Policen' })
   }
 })
 
-// GET single police
+/**
+ * GET /api/policen/:id
+ */
 router.get('/:id', async (req, res) => {
-  const connection = await getConnection()
   try {
-    const [rows] = await connection.execute(
-      'SELECT p.*, k.vorname, k.nachname, v.name as versicherer_name FROM policen p LEFT JOIN kunden k ON p.kunde_id = k.id LEFT JOIN versicherer v ON p.versicherer_id = v.id WHERE p.id = ?',
-      [req.params.id]
+    const { id } = req.params
+    const connection = await req.pool.getConnection()
+
+    const [rows] = await connection.query(
+      `
+      SELECT 
+        p.*,
+        s.name as sparten_name,
+        v.name as versicherer_name
+      FROM policen p
+      LEFT JOIN sparten s ON p.sparte_id = s.id
+      LEFT JOIN versicherer v ON p.versicherer_id = v.id
+      WHERE p.id = ?
+      `,
+      [id]
     )
-    if (rows.length === 0) return res.status(404).json({ message: 'Police not found' })
+
+    connection.release()
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Police nicht gefunden' })
+    }
+
     res.json(rows[0])
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Error fetching police', error: error.message })
-  } finally {
-    connection.release()
+  } catch (err) {
+    console.error('Fehler beim Abrufen der Police:', err)
+    res.status(500).json({ error: 'Fehler beim Abrufen der Police' })
   }
 })
 
-// POST new police
-router.post('/', async (req, res) => {
-  const connection = await getConnection()
+/**
+ * POST /api/policen
+ */
+router.post('/', authenticateToken, async (req, res) => {
   try {
-    let { kunde_id, versicherer_id, branche_id, policennummer, praemie_chf, gebuehren, beginn, ende, jkr, waehrung, bemerkungen } = req.body
+    const data = req.body
+    const userId = req.user?.id || null
+    const userName = req.user?.name || 'System'
 
-    // ✅ Validierung
-    if (!kunde_id) {
-      return res.status(400).json({ message: 'kunde_id ist erforderlich!' })
+    if (!data.kunde_id || !data.policennummer) {
+      return res.status(400).json({ error: 'Pflichtfelder: kunde_id, policennummer' })
     }
 
-    // ✅ Validiere versicherer_id wenn vorhanden
-    if (versicherer_id) {
-      const [versicherer] = await connection.execute(
-        'SELECT id FROM versicherer WHERE id = ?',
-        [versicherer_id]
-      )
-      if (versicherer.length === 0) {
-        console.warn(`⚠️ Ungültige versicherer_id: ${versicherer_id} - setze auf NULL`)
-        versicherer_id = null
-      }
-    } else {
-      versicherer_id = null
-    }
+    const invalidColumns = [
+      'kundentyp', 'zahlungsart', 'branche_id', 'status', 
+      'jkr', 'waehrung', 'total', 'sparten_name', 'versicherer_name',
+      'created_at', 'updated_at'
+    ]
 
-    // ✅ Validiere branche_id wenn vorhanden
-    if (branche_id) {
-      const [branche] = await connection.execute(
-        'SELECT id FROM branchen WHERE id = ?',
-        [branche_id]
-      )
-      if (branche.length === 0) {
-        console.warn(`⚠️ Ungültige branche_id: ${branche_id} - setze auf NULL`)
-        branche_id = null
-      }
-    } else {
-      branche_id = null
-    }
+    const connection = await req.pool.getConnection()
 
-    // ✅ Konvertiere ISO-Dates zu YYYY-MM-DD Format
-    if (beginn) beginn = beginn.split('T')[0]
-    if (ende) ende = ende.split('T')[0]
+    const columns = Object.keys(data)
+      .filter(key => key !== 'id' && !invalidColumns.includes(key))
+    
+    // NICHT konvertieren - DATE Spalten brauchen nur YYYY-MM-DD!
+    const placeholders = columns.map(() => '?').join(',')
+    const values = columns.map(col => data[col])
 
-    // ✅ Stelle sicher, dass keine undefined Werte übergeben werden
-    versicherer_id = versicherer_id === undefined ? null : versicherer_id
-    branche_id = branche_id === undefined ? null : branche_id
-    praemie_chf = praemie_chf === undefined ? null : praemie_chf
-    gebuehren = gebuehren === undefined ? null : gebuehren
-    jkr = jkr === undefined ? null : jkr
-    waehrung = waehrung === undefined ? 'CHF' : waehrung
-    bemerkungen = bemerkungen === undefined ? null : bemerkungen
-
-    const [result] = await connection.execute(
-      'INSERT INTO policen (kunde_id, versicherer_id, branche_id, policennummer, praemie_chf, gebuehren, beginn, ende, jkr, waehrung, bemerkungen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [kunde_id, versicherer_id, branche_id, policennummer, praemie_chf, gebuehren, beginn, ende, jkr, waehrung, bemerkungen]
+    await connection.query(
+      `INSERT INTO policen (${columns.join(',')}) VALUES (${placeholders})`,
+      values
     )
-    res.json({ id: result.insertId, message: 'Police created' })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Error creating police', error: error.message })
-  } finally {
+
+    const [result] = await connection.query('SELECT LAST_INSERT_ID() as id')
+    const policeId = result[0].id
+
+    try {
+      await logMutations(req.pool, policeId, {}, data, userId, userName)
+    } catch (mutationErr) {
+      console.warn('Mutation-Logging fehlgeschlagen:', mutationErr)
+    }
+
     connection.release()
+
+    res.status(201).json({
+      success: true,
+      message: 'Police erstellt',
+      police: { id: policeId, ...data }
+    })
+  } catch (err) {
+    console.error('Fehler beim Erstellen der Police:', err)
+    res.status(500).json({ error: 'Fehler beim Erstellen der Police' })
   }
 })
 
-// PUT update police
-router.put('/:id', async (req, res) => {
-  const connection = await getConnection()
+/**
+ * PUT /api/policen/:id
+ */
+router.put('/:id', authenticateToken, async (req, res) => {
+  const connection = await req.pool.getConnection()
+  
   try {
-    let { versicherer_id, branche_id, policennummer, praemie_chf, gebuehren, beginn, ende, jkr, waehrung, bemerkungen } = req.body
+    const { id } = req.params
+    const updates = req.body
+    const userId = req.user?.id || null
+    const userName = req.user?.name || 'System'
 
-    // ✅ Validiere versicherer_id wenn vorhanden
-    if (versicherer_id) {
-      const [versicherer] = await connection.execute(
-        'SELECT id FROM versicherer WHERE id = ?',
-        [versicherer_id]
-      )
-      if (versicherer.length === 0) {
-        console.warn(`⚠️ Ungültige versicherer_id: ${versicherer_id} - setze auf NULL`)
-        versicherer_id = null
-      }
-    } else {
-      versicherer_id = null
-    }
+    console.log(`[PUT] Starte Update für Police ${id}`)
 
-    // ✅ Validiere branche_id wenn vorhanden
-    if (branche_id) {
-      const [branche] = await connection.execute(
-        'SELECT id FROM branchen WHERE id = ?',
-        [branche_id]
-      )
-      if (branche.length === 0) {
-        console.warn(`⚠️ Ungültige branche_id: ${branche_id} - setze auf NULL`)
-        branche_id = null
-      }
-    } else {
-      branche_id = null
-    }
+    const invalidColumns = [
+      'kundentyp', 'zahlungsart', 'branche_id', 'status', 
+      'jkr', 'waehrung', 'total', 'sparten_name', 'versicherer_name',
+      'created_at', 'updated_at'
+    ]
 
-    // ✅ Konvertiere ISO-Dates zu YYYY-MM-DD Format
-    if (beginn) beginn = beginn.split('T')[0]
-    if (ende) ende = ende.split('T')[0]
-
-    // ✅ Stelle sicher, dass keine undefined Werte übergeben werden
-    versicherer_id = versicherer_id === undefined ? null : versicherer_id
-    branche_id = branche_id === undefined ? null : branche_id
-    praemie_chf = praemie_chf === undefined ? null : praemie_chf
-    gebuehren = gebuehren === undefined ? null : gebuehren
-    jkr = jkr === undefined ? null : jkr
-    waehrung = waehrung === undefined ? 'CHF' : waehrung
-    bemerkungen = bemerkungen === undefined ? null : bemerkungen
-
-    const [result] = await connection.execute(
-      'UPDATE policen SET versicherer_id=?, branche_id=?, policennummer=?, praemie_chf=?, gebuehren=?, beginn=?, ende=?, jkr=?, waehrung=?, bemerkungen=? WHERE id=?',
-      [versicherer_id, branche_id, policennummer, praemie_chf, gebuehren, beginn, ende, jkr, waehrung, bemerkungen, req.params.id]
+    const [oldPoliceRows] = await connection.query(
+      'SELECT * FROM policen WHERE id = ?',
+      [id]
     )
-    if (result.affectedRows === 0) return res.status(404).json({ message: 'Police not found' })
-    res.json({ message: 'Police updated' })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Error updating police', error: error.message })
-  } finally {
+
+    if (oldPoliceRows.length === 0) {
+      connection.release()
+      return res.status(404).json({ error: 'Police nicht gefunden' })
+    }
+
+    const oldPolice = oldPoliceRows[0]
+    console.log(`[PUT] Alte Daten geladen`)
+
+    const columns = Object.keys(updates)
+      .filter(key => key !== 'id' && !invalidColumns.includes(key))
+    
+    if (columns.length === 0) {
+      connection.release()
+      return res.status(400).json({ error: 'Keine gültigen Felder zum Aktualisieren' })
+    }
+
+    // NICHT konvertieren - DATE Spalten brauchen nur YYYY-MM-DD!
+    const setClause = columns.map(col => `${col} = ?`).join(', ')
+    const values = columns.map(col => updates[col])
+    values.push(id)
+
+    console.log(`[PUT] Führe UPDATE aus mit ${columns.length} Feldern`)
+    const updateQuery = `UPDATE policen SET ${setClause}, updated_at = NOW() WHERE id = ?`
+    await connection.query(updateQuery, values)
+    console.log(`[PUT] UPDATE erfolgreich`)
+
+    try {
+      console.log(`[PUT] Starte Mutation Logging...`)
+      await logMutations(req.pool, id, oldPolice, updates, userId, userName)
+      console.log(`[PUT] Mutation Logging erfolgreich`)
+    } catch (mutationErr) {
+      console.warn(`[PUT] ⚠️ Mutation Logging fehlgeschlagen:`, mutationErr.message)
+    }
+
+    console.log(`[PUT] Lade aktualisierte Daten...`)
+    const [updatedRows] = await connection.query(
+      `
+      SELECT 
+        p.*,
+        s.name as sparten_name,
+        v.name as versicherer_name
+      FROM policen p
+      LEFT JOIN sparten s ON p.sparte_id = s.id
+      LEFT JOIN versicherer v ON p.versicherer_id = v.id
+      WHERE p.id = ?
+      `,
+      [id]
+    )
+
     connection.release()
+
+    console.log(`✅ [PUT] Police ${id} erfolgreich aktualisiert`)
+    res.status(200).json({
+      success: true,
+      message: 'Police aktualisiert',
+      police: updatedRows[0]
+    })
+  } catch (err) {
+    connection.release()
+    console.error(`❌ [PUT] Fehler beim Aktualisieren:`, err.message)
+    res.status(500).json({ error: 'Fehler beim Aktualisieren der Police: ' + err.message })
   }
 })
 
-// DELETE police
-router.delete('/:id', async (req, res) => {
-  const connection = await getConnection()
+/**
+ * DELETE /api/policen/:id
+ */
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
-    const [result] = await connection.execute('DELETE FROM policen WHERE id = ?', [req.params.id])
-    if (result.affectedRows === 0) return res.status(404).json({ message: 'Police not found' })
-    res.json({ message: 'Police deleted' })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Error deleting police', error: error.message })
-  } finally {
+    const { id } = req.params
+    const connection = await req.pool.getConnection()
+
+    const [result] = await connection.query(
+      'DELETE FROM policen WHERE id = ?',
+      [id]
+    )
+
     connection.release()
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Police nicht gefunden' })
+    }
+
+    res.json({
+      success: true,
+      message: 'Police gelöscht'
+    })
+  } catch (err) {
+    console.error('Fehler beim Löschen der Police:', err)
+    res.status(500).json({ error: 'Fehler beim Löschen der Police' })
   }
 })
 

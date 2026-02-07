@@ -5,7 +5,7 @@ import './ImmobildienTab.css'
 
 function ImmobildienTab({ kundeId }) {
   const [immobilien, setImmobilien] = useState([])
-  const [allHypotheken, setAllHypotheken] = useState([]) // ✅ NEU: Alle Hypotheken
+  const [allHypotheken, setAllHypotheken] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedImmobilie, setSelectedImmobilie] = useState(null)
   const [showDetails, setShowDetails] = useState(false)
@@ -14,13 +14,19 @@ function ImmobildienTab({ kundeId }) {
     fetchData()
   }, [kundeId])
 
-  // ✅ FIXED: Lade Hypotheken separat für jede Immobilie
   const fetchData = async () => {
     try {
       setLoading(true)
       
+      const token = localStorage.getItem('auth_token')
+      
       // 1. Lade Immobilien
-      const immoResponse = await fetch('http://localhost:5000/api/immobilien')
+      const immoResponse = await fetch('http://localhost:5000/api/immobilien', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
       if (!immoResponse.ok) throw new Error('Fehler beim Laden der Immobilien')
       const immoData = await immoResponse.json()
       
@@ -35,7 +41,12 @@ function ImmobildienTab({ kundeId }) {
       const allHypos = []
       for (const immo of filteredImmobilien) {
         try {
-          const hypoResponse = await fetch(`http://localhost:5000/api/hypotheken/immobilie/${immo.id}`)
+          const hypoResponse = await fetch(`http://localhost:5000/api/hypotheken/immobilie/${immo.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          })
           if (hypoResponse.ok) {
             const hypos = await hypoResponse.json()
             allHypos.push(...hypos)
@@ -63,16 +74,24 @@ function ImmobildienTab({ kundeId }) {
     try {
       let response
       
+      const token = localStorage.getItem('auth_token')
+      
       if (updatedImmobilie.id) {
         response = await fetch(`http://localhost:5000/api/immobilien/${updatedImmobilie.id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json' 
+          },
           body: JSON.stringify(updatedImmobilie)
         })
       } else {
         response = await fetch('http://localhost:5000/api/immobilien', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json' 
+          },
           body: JSON.stringify(updatedImmobilie)
         })
       }
@@ -80,7 +99,7 @@ function ImmobildienTab({ kundeId }) {
       if (response.ok) {
         alert('✅ Immobilie gespeichert!')
         setShowDetails(false)
-        fetchData() // Neu laden
+        fetchData()
       } else {
         alert('❌ Fehler beim Speichern')
       }
@@ -98,20 +117,24 @@ function ImmobildienTab({ kundeId }) {
     setShowDetails(true)
   }
 
-  // ✅ NEU: Lösche Immobilie
   const handleDeleteImmobilie = async (immobilieId) => {
     if (!confirm('🗑️ Immobilie wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) {
       return
     }
 
     try {
+      const token = localStorage.getItem('auth_token')
       const response = await fetch(`http://localhost:5000/api/immobilien/${immobilieId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       })
 
       if (response.ok) {
         alert('✅ Immobilie gelöscht!')
-        fetchData() // Neuladen
+        fetchData()
       } else {
         alert('❌ Fehler beim Löschen')
       }
@@ -121,7 +144,6 @@ function ImmobildienTab({ kundeId }) {
     }
   }
 
-  // ===== SUMMARY CALCULATIONS ✅ FIXED =====
   const calculateSummary = () => {
     if (immobilien.length === 0) return null
 
@@ -141,7 +163,6 @@ function ImmobildienTab({ kundeId }) {
       totalKaufpreis += kaufpreis
       totalMietertrag += mietertrag
 
-      // ✅ NEU: Hole Hypotheken aus allHypotheken State (von API)
       const immoHypotheken = allHypotheken.filter(h => h.immobilie_id === immo.id)
       immoHypotheken.forEach(hypo => {
         const betrag = parseFloat(hypo.betrag) || 0
@@ -187,10 +208,8 @@ function ImmobildienTab({ kundeId }) {
         <button className="button-new" onClick={handleNewImmobilie}>+ Neue Immobilie</button>
       </div>
 
-      {/* ===== SUMMARY DASHBOARD ===== */}
       {summary && (
         <div className="summary-dashboard">
-          {/* KPI Cards */}
           <div className="summary-kpi-section">
             <div className="summary-kpi-card">
               <div className="summary-kpi-label">Gewinn/Verlust (Total)</div>
@@ -212,7 +231,6 @@ function ImmobildienTab({ kundeId }) {
             </div>
           </div>
 
-          {/* Stats Grid */}
           <div className="summary-stats-grid">
             <div className="summary-stat-card">
               <span>Total Gebäudewert</span>

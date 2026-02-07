@@ -4,13 +4,14 @@ import './DateienTab.css';
 const DateienTab = ({ versicherer }) => {
   const [dateien, setDateien] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showUpload, setShowUpload] = useState(false);
-  const [uploadData, setUploadData] = useState({
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    datei_link: '',
     dateiname: '',
     dateityp: 'ZAV',
     beschreibung: '',
     gueltig_von: '',
-    gueltig_ab: ''
+    gueltig_bis: ''
   });
   const [error, setError] = useState(null);
 
@@ -32,55 +33,54 @@ const DateienTab = ({ versicherer }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUploadData(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
     setError(null);
   };
 
-  const handleUpload = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     // Validierung
-    if (!uploadData.dateiname.trim()) {
+    if (!formData.datei_link.trim()) {
+      setError('Datei Link ist erforderlich');
+      return;
+    }
+    if (!formData.dateiname.trim()) {
       setError('Dateiname ist erforderlich');
       return;
     }
 
     try {
-      console.log('Sende Metadaten:', uploadData);
-
       const response = await fetch(`http://localhost:5000/api/versicherer/${versicherer.id}/dateien`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(uploadData)
+        body: JSON.stringify(formData)
       });
-
-      console.log('Response Status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Fehler beim Upload');
+        throw new Error(errorData.message || 'Fehler beim Speichern');
       }
 
-      console.log('Upload erfolgreich!');
-      
       // Reset Form
-      setUploadData({
+      setFormData({
+        datei_link: '',
         dateiname: '',
         dateityp: 'ZAV',
         beschreibung: '',
         gueltig_von: '',
         gueltig_bis: ''
       });
-      
-      setShowUpload(false);
+
+      setShowModal(false);
       loadDateien();
     } catch (err) {
-      console.error('Upload Fehler:', err);
-      setError('Fehler: ' + err.message);
+      console.error('Fehler:', err);
+      setError(err.message);
     }
   };
 
@@ -115,84 +115,109 @@ const DateienTab = ({ versicherer }) => {
         <h2>📄 Dateien</h2>
         <button 
           className="btn-primary"
-          onClick={() => setShowUpload(!showUpload)}
+          onClick={() => setShowModal(!showModal)}
         >
-          {showUpload ? '✕ Abbrechen' : '+ Neue Datei'}
+          {showModal ? '✕ Abbrechen' : '+ Neue Datei'}
         </button>
       </div>
 
-      {showUpload && (
-        <form className="upload-form" onSubmit={handleUpload}>
-          {error && <div className="error-message">{error}</div>}
+      {/* MODAL */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>📄 Datei hinzufügen</h3>
 
-          <div className="form-group">
-            <label>Dateiname *</label>
-            <input
-              type="text"
-              name="dateiname"
-              value={uploadData.dateiname}
-              onChange={handleInputChange}
-              placeholder="z.B. ZAV_2026_Hausrat.pdf"
-              required
-            />
-          </div>
+            {error && <div className="error-message">{error}</div>}
 
-          <div className="form-group">
-            <label>Dateityp *</label>
-            <select 
-              name="dateityp" 
-              value={uploadData.dateityp}
-              onChange={handleInputChange}
-            >
-              <option value="ZAV">🏛️ ZAV</option>
-              <option value="Tarife">💰 Tarife</option>
-              <option value="Bedingungen">📋 Bedingungen</option>
-              <option value="Brochüren">📖 Brochüren</option>
-              <option value="Sonstiges">📎 Sonstiges</option>
-            </select>
-          </div>
+            <form onSubmit={handleSubmit}>
+              {/* DATEI LINK - ZUERST */}
+              <div className="form-group">
+                <label>Datei Link (Nextcloud) *</label>
+                <input
+                  type="url"
+                  name="datei_link"
+                  value={formData.datei_link}
+                  onChange={handleInputChange}
+                  placeholder="https://nextcloud.example.com/files/123..."
+                  required
+                />
+              </div>
 
-          <div className="form-group">
-            <label>Beschreibung</label>
-            <input
-              type="text"
-              name="beschreibung"
-              value={uploadData.beschreibung}
-              onChange={handleInputChange}
-              placeholder="z.B. ZAV 2026 - Hausrat & Privathaftpflicht"
-            />
-          </div>
+              {/* DATEINAME */}
+              <div className="form-group">
+                <label>Dateiname *</label>
+                <input
+                  type="text"
+                  name="dateiname"
+                  value={formData.dateiname}
+                  onChange={handleInputChange}
+                  placeholder="z.B. ZAV_2026_Hausrat.pdf"
+                  required
+                />
+              </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Gültig von</label>
-              <input
-                type="date"
-                name="gueltig_von"
-                value={uploadData.gueltig_von}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="form-group">
-              <label>Gültig bis</label>
-              <input
-                type="date"
-                name="gueltig_bis"
-                value={uploadData.gueltig_bis}
-                onChange={handleInputChange}
-              />
-            </div>
-          </div>
+              {/* DATEITYP */}
+              <div className="form-group">
+                <label>Dateityp *</label>
+                <select 
+                  name="dateityp" 
+                  value={formData.dateityp}
+                  onChange={handleInputChange}
+                >
+                  <option value="ZAV">🏛️ ZAV</option>
+                  <option value="Tarife">💰 Tarife</option>
+                  <option value="Bedingungen">📋 Bedingungen</option>
+                  <option value="Brochüren">📖 Brochüren</option>
+                  <option value="Sonstiges">📎 Sonstiges</option>
+                </select>
+              </div>
 
-          <div className="form-actions">
-            <button type="submit" className="btn-primary">💾 Speichern</button>
-            <button type="button" className="btn-secondary" onClick={() => setShowUpload(false)}>
-              Abbrechen
-            </button>
+              {/* BESCHREIBUNG */}
+              <div className="form-group">
+                <label>Beschreibung</label>
+                <input
+                  type="text"
+                  name="beschreibung"
+                  value={formData.beschreibung}
+                  onChange={handleInputChange}
+                  placeholder="z.B. ZAV 2026 - Hausrat & Privathaftpflicht"
+                />
+              </div>
+
+              {/* GÜLTIG VON / BIS */}
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Gültig von</label>
+                  <input
+                    type="date"
+                    name="gueltig_von"
+                    value={formData.gueltig_von}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Gültig bis</label>
+                  <input
+                    type="date"
+                    name="gueltig_bis"
+                    value={formData.gueltig_bis}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button type="submit" className="btn-primary">💾 Speichern</button>
+                <button type="button" className="btn-secondary" onClick={() => setShowModal(false)}>
+                  Abbrechen
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       )}
 
+      {/* DATEIEN LISTE */}
       <div className="dateien-list">
         {dateien.length === 0 ? (
           <p className="empty">Noch keine Dateien erfasst</p>
@@ -209,10 +234,13 @@ const DateienTab = ({ versicherer }) => {
                     {isExpired(d.gueltig_bis) && <span className="expired-badge"> [ABGELAUFEN]</span>}
                   </p>
                 ) : null}
+                <a href={d.datei_link} target="_blank" rel="noopener noreferrer" className="datei-link">
+                  🔗 Link öffnen
+                </a>
               </div>
               <div className="datei-actions">
                 <button 
-                  className="btn-small btn-danger"
+                  className="btn-danger"
                   onClick={() => handleDelete(d.id)}
                 >
                   🗑️ Löschen

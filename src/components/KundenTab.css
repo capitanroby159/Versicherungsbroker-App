@@ -1,6 +1,5 @@
+/* Header */
 .kunden-tab {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 20px;
 }
 
@@ -8,299 +7,272 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 24px;
+  gap: 16px;
 }
 
 .kunden-header h2 {
   margin: 0;
-  font-size: 24px;
-  color: #333;
+  font-size: 28px;
+  font-weight: 600;
+  color: #0f2f5f;
 }
 
 .button-new-kunde {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #1e40af;
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 15px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.button-new-kunde:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
-
-.error-box {
-  background: #fee;
-  border: 2px solid #f88;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.error-box p {
-  color: #c00;
-  margin: 0 0 15px 0;
+  font-size: 14px;
   font-weight: 500;
-}
-
-.error-box button {
-  background: #f88;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background 0.3s;
-}
-
-.error-box button:hover {
-  background: #d66;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-}
-
-.empty-state p {
-  font-size: 18px;
-  color: #999;
-  margin: 0 0 20px 0;
-}
-
-.empty-state .button-new-kunde {
-  font-size: 16px;
-  padding: 15px 30px;
-}
-
-.kunden-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.kunde-card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-left: 4px solid #667eea;
-}
-
-.kunde-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  border-left-color: #764ba2;
-}
-
-.kunde-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15px;
-  gap: 10px;
-}
-
-.kunde-card-header h3 {
-  margin: 0;
-  font-size: 18px;
-  color: #333;
-  flex: 1;
-}
-
-.type-badge {
-  background: #f0f0f0;
-  color: #666;
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 600;
   white-space: nowrap;
 }
 
-.type-badge.privat {
-  background: #e8f4f8;
-  color: #0066cc;
+.button-new-kunde:hover {
+  background-color: #1e3a8a;
 }
 
-.type-badge.geschäft {
-  background: #f0e8f8;
-  color: #6600cc;
-}
-
-.type-badge.partner {
-  background: #f8f0e8;
-  color: #cc6600;
-}
-
-.kunde-card-details {
+/* Filter Section - INLINE */
+.filter-section {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 20px;
+  align-items: center;
 }
 
-.kunde-card-details p {
-  margin: 0;
-  font-size: 13px;
-  color: #666;
-  line-height: 1.4;
+.filter-group {
+  flex: 1;
+  min-width: 150px;
 }
 
-/* MODAL */
+.filter-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
 }
 
-.modal {
-  background: white;
+.modal-content {
+  background-color: white;
   border-radius: 8px;
-  padding: 30px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
+  padding: 24px;
+  max-height: 95vh;
   overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.3s ease;
+  max-width: 800px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 10000;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+body.modal-open {
+  overflow: hidden;
 }
 
-.modal h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 20px;
+/* Table styles */
+.kunden-table-wrapper {
+  overflow-x: auto;
 }
 
-.new-kunde-form {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
-  margin-bottom: 20px;
+.kunden-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
+.kunden-table thead {
+  background-color: #0f2f5f;
+  color: white;
 }
 
-.form-group label {
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #333;
+.kunden-table th,
+.kunden-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Column widths */
+.kunden-table th:nth-child(1),
+.kunden-table td:nth-child(1) {
+  width: 35%;
+  min-width: 200px;
+}
+
+.kunden-table th:nth-child(2),
+.kunden-table td:nth-child(2) {
+  width: 20%;
+  min-width: 150px;
+}
+
+.kunden-table th:nth-child(3),
+.kunden-table td:nth-child(3) {
+  width: 12%;
+  min-width: 100px;
+}
+
+.kunden-table th:nth-child(4),
+.kunden-table td:nth-child(4) {
+  width: 15%;
+  min-width: 120px;
+}
+
+.kunden-table th:nth-child(5),
+.kunden-table td:nth-child(5) {
+  width: 12%;
+  min-width: 100px;
+}
+
+.kunden-table th:nth-child(6),
+.kunden-table td:nth-child(6) {
+  width: 6%;
+  min-width: 80px;
+}
+
+.kunden-table tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.kunde-name-link {
+  background: none;
+  border: none;
+  color: #1e40af;
+  cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0;
 }
 
-.form-group input,
-.form-group select {
-  padding: 10px;
-  border: 1px solid #ddd;
+.kunde-name-link:hover {
+  color: #1e3a8a;
+  text-decoration: underline;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
   border-radius: 4px;
-  font-family: inherit;
-  font-size: 14px;
-  transition: border-color 0.3s;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.status-badge.vollmandat {
+  background-color: #dbeafe;
+  color: #1e40af;
 }
 
-.modal-actions {
+.status-badge.teilmandat {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.inaktiv {
+  background-color: #fee2e2;
+  color: #7f1d1d;
+}
+
+/* Actions Cell */
+.actions-cell {
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  padding-top: 20px;
-  border-top: 1px solid #e0e0e0;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.button-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.button-edit,
+.button-delete {
+  padding: 6px 14px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  min-width: 90px;
+  text-align: center;
+}
+
+.button-edit {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.button-edit:hover {
+  background-color: #2563eb;
+}
+
+.button-delete {
+  background-color: #ef4444;
+  color: white;
+}
+
+.button-delete:hover {
+  background-color: #dc2626;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* Error Box */
+.error-box {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.error-box p {
+  margin: 0 0 12px 0;
+}
+
+.error-box button {
+  background-color: #dc2626;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: 4px;
-  font-weight: 600;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s;
 }
 
-.button-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.button-secondary {
-  background: #f0f0f0;
-  color: #333;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-.button-secondary:hover {
-  background: #e0e0e0;
-}
-
-@media (max-width: 768px) {
-  .kunden-header {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-  }
-
-  .kunden-header h2 {
-    margin-bottom: 10px;
-  }
-
-  .button-new-kunde {
-    width: 100%;
-  }
-
-  .kunden-list {
-    grid-template-columns: 1fr;
-  }
-
-  .modal {
-    width: 95%;
-  }
+.error-box button:hover {
+  background-color: #991b1b;
 }
