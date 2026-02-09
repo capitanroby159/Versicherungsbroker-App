@@ -1,0 +1,20 @@
+@import './SharedModal.css';
+
+.katalog-verwaltung-modal {
+  max-width: 800px; /* Breiter! */
+  z-index: 10001; /* Über dem Katalog-Modal */
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group small {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  font-style: italic;
+}

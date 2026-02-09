@@ -19,6 +19,7 @@ const FIELD_LABELS = {
   status_detail: 'Status',
   bemerkungen: 'Bemerkungen',
   notizen: 'Notizen',
+  // UVG Felder
   uvg_risiko_nr: 'UVG Risiko-Nr',
   uvg_art_betrieb: 'UVG Art Betrieb',
   uvg_versicherter_personenkreis: 'UVG Versicherter Personenkreis',
@@ -27,7 +28,28 @@ const FIELD_LABELS = {
   uvg_bu_praemiensatz: 'UVG BU Prämiensatz',
   uvg_nbu_gefahrenklasse: 'UVG NBU Gefahrenklasse',
   uvg_nbu_unterklasse: 'UVG NBU Unterklasse',
-  uvg_nbu_praemiensatz: 'UVG NBU Prämiensatz'
+  uvg_nbu_praemiensatz: 'UVG NBU Prämiensatz',
+  uvg_lohnsumme_maenner_bu: 'UVG Lohnsumme Männer BU',
+  uvg_lohnsumme_frauen_bu: 'UVG Lohnsumme Frauen BU',
+  uvg_lohnsumme_maenner_nbu: 'UVG Lohnsumme Männer NBU',
+  uvg_lohnsumme_frauen_nbu: 'UVG Lohnsumme Frauen NBU',
+  // KTG Felder
+  ktg_max_versicherter_lohn: 'KTG Max. versicherter Lohn',
+  ktg_taggeld: 'KTG Taggeld %',
+  ktg_wartefrist: 'KTG Wartefrist (Tage)',
+  ktg_wartefrist_art: 'KTG Wartefrist-Art',
+  ktg_leistungsdauer: 'KTG Leistungsdauer',
+  ktg_mutterschaftstaggeld: 'KTG Mutterschaftstaggeld',
+  ktg_vaterschaftstaggeld: 'KTG Vaterschaftstaggeld',
+  ktg_lohnnachgenuss: 'KTG Lohnnachgenuss',
+  ktg_familienzulagen: 'KTG Familienzulagen',
+  ktg_praemiensatz_maenner: 'KTG Prämiensatz Männer %',
+  ktg_praemiensatz_frauen: 'KTG Prämiensatz Frauen %',
+  ktg_lohnsumme_maenner: 'KTG Lohnsumme Männer',
+  ktg_lohnsumme_frauen: 'KTG Lohnsumme Frauen',
+  ktg_lohnsumme_mutterschaft_eo: 'KTG Lohnsumme Mutterschaft EO',
+  ktg_lohnsumme_mutterschaft_uebersteigend: 'KTG Lohnsumme Mutterschaft übersteigend',
+  ktg_lohnsumme_vaterschaft: 'KTG Lohnsumme Vaterschaft'
 }
 
 /**

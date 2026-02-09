@@ -3,7 +3,24 @@ import { formatCHF, formatCHFInput, parseCHF, formatDateShort, isValidDateShort 
 import DateienTab from './DateienTab'
 import DateienModal from './DateienModal'
 import MutationsTab from './MutationsTab'
+import KlauselnTab from './KlauselnTab'
+import KlauselVerwaltungModal from './KlauselVerwaltungModal'
+import KlauselAuswahlModal from './KlauselAuswahlModal'
+import ZusatzdeckungenManager from './ZusatzdeckungenManager'
 import './PolicenDetailsModal.css'
+import VersicherungsummenSection from './VersicherungsummenSection'
+import VersicherungsorteManager from './VersicherungsorteManager'
+import GrundversicherungManager from './GrundversicherungManager'
+import BetriebsunterbruchManager from './BetriebsunterbruchManager'
+
+// Formatiert Lohnsummen mit Schweizer Tausendertrennzeichen
+const formatSwissNumber = (value) => {
+  if (!value) return ''
+  const num = value.toString().replace(/[^\d.]/g, '')
+  const parts = num.split('.')
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, "'")
+  return parts.join('.')
+}
 
 function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
   const [sparten, setSparten] = useState([])
@@ -11,6 +28,9 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [showKlauselVerwaltung, setShowKlauselVerwaltung] = useState(false)
+  const [showKlauselAuswahl, setShowKlauselAuswahl] = useState(false)
+  const [klauselnRefreshTrigger, setKlauselnRefreshTrigger] = useState(0)
   const [isEditMode, setIsEditMode] = useState(!police)
   const [rightActiveTab, setRightActiveTab] = useState('dateien')
 
@@ -34,6 +54,7 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
     status_detail: 'Aktiv',
     bemerkungen: '',
     notizen: '',
+    // UVG Felder
     uvg_risiko_nr: '',
     uvg_art_betrieb: '',
     uvg_versicherter_personenkreis: 'Alle Arbeitnehmenden gemäss Art. 1a und 2 UVG sowie Art. 1 bis 6 UVV',
@@ -42,7 +63,32 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
     uvg_bu_praemiensatz: '',
     uvg_nbu_gefahrenklasse: '',
     uvg_nbu_unterklasse: '',
-    uvg_nbu_praemiensatz: ''
+    uvg_nbu_praemiensatz: '',
+    uvg_lohnsumme_maenner_bu: '',
+    uvg_lohnsumme_frauen_bu: '',
+    uvg_lohnsumme_maenner_nbu: '',
+    uvg_lohnsumme_frauen_nbu: '',
+    // KTG Felder
+    ktg_max_versicherter_lohn: '300000.00',
+    ktg_taggeld: '80',
+    ktg_wartefrist: '30',
+    ktg_wartefrist_art: 'je Fall',
+    ktg_leistungsdauer: '730 Tage',
+    ktg_mutterschaftstaggeld: '',
+    ktg_vaterschaftstaggeld: '',
+    ktg_praemiensatz_maenner: '',
+    ktg_praemiensatz_frauen: '',
+    ktg_lohnsumme_maenner: '',
+    ktg_lohnsumme_frauen: '',
+    ktg_lohnsumme_mutterschaft_eo: '',
+    ktg_lohnsumme_mutterschaft_uebersteigend: '',
+    ktg_lohnsumme_vaterschaft: '',
+    // Haftpflicht Felder
+    haft_ahv_lohnsumme: '',
+    haft_umsatz: '',
+    haft_deklaration: 'Pauschal',
+    haft_grunddeckung_garantiesumme: '',
+    haft_grunddeckung_selbstbehalt: ''
   })
 
   const calculateFaelligkeit = (endDate) => {
@@ -69,7 +115,24 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
         ende: police.ende ? police.ende.split('T')[0] : '',
         archiv_url: police.archiv_url || '',
         jaehrliches_kuendigungsrecht: police.jaehrliches_kuendigungsrecht ? true : false,
-        praemiengarantie: police.praemiengarantie ? true : false
+        praemiengarantie: police.praemiengarantie ? true : false,
+        // KTG - Formatiert
+        ktg_max_versicherter_lohn: police.ktg_max_versicherter_lohn ? formatSwissNumber(police.ktg_max_versicherter_lohn) : '300000.00',
+        ktg_lohnsumme_maenner: police.ktg_lohnsumme_maenner ? formatSwissNumber(police.ktg_lohnsumme_maenner) : '',
+        ktg_lohnsumme_frauen: police.ktg_lohnsumme_frauen ? formatSwissNumber(police.ktg_lohnsumme_frauen) : '',
+        ktg_lohnsumme_mutterschaft_eo: police.ktg_lohnsumme_mutterschaft_eo ? formatSwissNumber(police.ktg_lohnsumme_mutterschaft_eo) : '',
+        ktg_lohnsumme_mutterschaft_uebersteigend: police.ktg_lohnsumme_mutterschaft_uebersteigend ? formatSwissNumber(police.ktg_lohnsumme_mutterschaft_uebersteigend) : '',
+        ktg_lohnsumme_vaterschaft: police.ktg_lohnsumme_vaterschaft ? formatSwissNumber(police.ktg_lohnsumme_vaterschaft) : '',
+        // UVG - Formatiert
+        uvg_lohnsumme_maenner_bu: police.uvg_lohnsumme_maenner_bu ? formatSwissNumber(police.uvg_lohnsumme_maenner_bu) : '',
+        uvg_lohnsumme_frauen_bu: police.uvg_lohnsumme_frauen_bu ? formatSwissNumber(police.uvg_lohnsumme_frauen_bu) : '',
+        uvg_lohnsumme_maenner_nbu: police.uvg_lohnsumme_maenner_nbu ? formatSwissNumber(police.uvg_lohnsumme_maenner_nbu) : '',
+        uvg_lohnsumme_frauen_nbu: police.uvg_lohnsumme_frauen_nbu ? formatSwissNumber(police.uvg_lohnsumme_frauen_nbu) : '',
+        // Haftpflicht - Formatiert
+        haft_ahv_lohnsumme: police.haft_ahv_lohnsumme ? formatSwissNumber(police.haft_ahv_lohnsumme) : '',
+        haft_umsatz: police.haft_umsatz ? formatSwissNumber(police.haft_umsatz) : '',
+        haft_grunddeckung_garantiesumme: police.haft_grunddeckung_garantiesumme ? formatSwissNumber(police.haft_grunddeckung_garantiesumme) : '',
+        haft_grunddeckung_selbstbehalt: police.haft_grunddeckung_selbstbehalt ? formatSwissNumber(police.haft_grunddeckung_selbstbehalt) : ''
       }))
     }
     fetchSparten()
@@ -108,9 +171,21 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
+    let finalValue = type === 'checkbox' ? checked : value
+
+    // Formatiere Lohnsummen-Felder und Haft-Beträge beim Eingeben
+    if (name.includes('lohnsumme') || 
+        name === 'ktg_max_versicherter_lohn' ||
+        name === 'haft_ahv_lohnsumme' ||
+        name === 'haft_umsatz' ||
+        name === 'haft_grunddeckung_garantiesumme' ||
+        name === 'haft_grunddeckung_selbstbehalt') {
+      finalValue = formatSwissNumber(value)
+    }
+
     const newFormData = {
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: finalValue
     }
     
     if (name === 'ende' && value) {
@@ -139,16 +214,83 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
         : 'http://localhost:5000/api/policen'
       const method = police?.id ? 'PUT' : 'POST'
 
-      // 🔧 Sende Daten direkt wie sie sind - KEINE Konvertierung!
+      // Konvertiert leere Strings und formatierte Zahlen zu NULL oder Number
+      const cleanNumber = (val) => {
+        if (!val || val === '' || val === '-') return null
+        const cleaned = val.toString().replace(/'/g, '')
+        const num = parseFloat(cleaned)
+        return isNaN(num) ? null : num
+      }
+
+      // Konvertiert leere Strings zu NULL für Text-Felder
+      const cleanString = (val) => {
+        if (!val || val === '' || val === '-') return null
+        return val
+      }
+
+      // Konvertiert Prämiensätze: Entfernt % und gibt Zahl zurück
+      const cleanPercentage = (val) => {
+        if (!val || val === '' || val === '-') return null
+        const cleaned = val.toString().replace(/%/g, '').replace(/'/g, '').trim()
+        const num = parseFloat(cleaned)
+        return isNaN(num) ? null : num
+      }
+
       const dataToSend = {
         ...formData,
         praemie_chf: parseCHF(formData.praemie_chf || '0'),
         gebuehren: parseCHF(formData.gebuehren || '0'),
-        beginn: formData.beginn || null,  // "2026-01-01" direkt
-        ende: formData.ende || null,      // "2026-12-31" direkt
+        beginn: formData.beginn || null,
+        ende: formData.ende || null,
         bemerkungen: [formData.bemerkungen, formData.notizen]
           .filter(Boolean)
-          .join('\n\n---\n\n')
+          .join('\n\n---\n\n'),
+        // UVG Text-Felder
+        uvg_risiko_nr: cleanString(formData.uvg_risiko_nr),
+        uvg_art_betrieb: cleanString(formData.uvg_art_betrieb),
+        uvg_bu_gefahrenklasse: cleanString(formData.uvg_bu_gefahrenklasse),
+        uvg_bu_gefahrenstufe: cleanString(formData.uvg_bu_gefahrenstufe),
+        uvg_bu_praemiensatz: cleanPercentage(formData.uvg_bu_praemiensatz),
+        uvg_nbu_gefahrenklasse: cleanString(formData.uvg_nbu_gefahrenklasse),
+        uvg_nbu_unterklasse: cleanString(formData.uvg_nbu_unterklasse),
+        uvg_nbu_praemiensatz: cleanPercentage(formData.uvg_nbu_praemiensatz),
+        // UVG Lohnsummen
+        uvg_lohnsumme_maenner_bu: cleanNumber(formData.uvg_lohnsumme_maenner_bu),
+        uvg_lohnsumme_frauen_bu: cleanNumber(formData.uvg_lohnsumme_frauen_bu),
+        uvg_lohnsumme_maenner_nbu: cleanNumber(formData.uvg_lohnsumme_maenner_nbu),
+        uvg_lohnsumme_frauen_nbu: cleanNumber(formData.uvg_lohnsumme_frauen_nbu),
+        // KTG Text-Felder
+        ktg_mutterschaftstaggeld: cleanString(formData.ktg_mutterschaftstaggeld),
+        ktg_vaterschaftstaggeld: cleanString(formData.ktg_vaterschaftstaggeld),
+        ktg_praemiensatz_maenner: cleanPercentage(formData.ktg_praemiensatz_maenner),
+        ktg_praemiensatz_frauen: cleanPercentage(formData.ktg_praemiensatz_frauen),
+        // KTG Checkboxen (entfernt - auf null setzen)
+        ktg_lohnnachgenuss: null,
+        ktg_familienzulagen: null,
+        // KTG Lohnsummen
+        ktg_max_versicherter_lohn: cleanNumber(formData.ktg_max_versicherter_lohn),
+        ktg_lohnsumme_maenner: cleanNumber(formData.ktg_lohnsumme_maenner),
+        ktg_lohnsumme_frauen: cleanNumber(formData.ktg_lohnsumme_frauen),
+        ktg_lohnsumme_mutterschaft_eo: cleanNumber(formData.ktg_lohnsumme_mutterschaft_eo),
+        ktg_lohnsumme_mutterschaft_uebersteigend: cleanNumber(formData.ktg_lohnsumme_mutterschaft_uebersteigend),
+        ktg_lohnsumme_vaterschaft: cleanNumber(formData.ktg_lohnsumme_vaterschaft),
+        // Haftpflicht-Felder
+        haft_ahv_lohnsumme: cleanNumber(formData.haft_ahv_lohnsumme),
+        haft_umsatz: cleanNumber(formData.haft_umsatz),
+        haft_deklaration: cleanString(formData.haft_deklaration),
+        haft_grunddeckung_garantiesumme: cleanNumber(formData.haft_grunddeckung_garantiesumme),
+        haft_grunddeckung_selbstbehalt: cleanNumber(formData.haft_grunddeckung_selbstbehalt),
+        haft_grunddeckung_selbstbehalt: cleanNumber(formData.haft_grunddeckung_selbstbehalt),
+        // SACH-FELDER
+        sach_inventar: cleanNumber(formData.sach_inventar),
+        sach_inventar_nicht_fix_freien: cleanNumber(formData.sach_inventar_nicht_fix_freien),
+        sach_inventar_fix_installationen: cleanNumber(formData.sach_inventar_fix_installationen),
+        sach_inventar_elementar_spezial: cleanNumber(formData.sach_inventar_elementar_spezial),
+        sach_inventar_container: cleanNumber(formData.sach_inventar_container),
+        sach_mfz_gesamt: cleanNumber(formData.sach_mfz_gesamt),
+        sach_mfz_bis_35t: cleanNumber(formData.sach_mfz_bis_35t),
+        sach_mfz_ueber_35t: cleanNumber(formData.sach_mfz_ueber_35t),
+        sach_umsatz: cleanNumber(formData.sach_umsatz)
       }
 
       console.log('📤 Sende Daten:', dataToSend)
@@ -173,7 +315,6 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
       }
 
       const savedPolice = await response.json()
-      // alert() blockiert - direkt schließen!
       onSave(savedPolice.police || savedPolice)
       onClose()
     } catch (err) {
@@ -184,6 +325,17 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
   }
 
   const isUVG = parseInt(formData.sparte_id) === 5
+  const isKTG = parseInt(formData.sparte_id) === 6
+  const isHaft = parseInt(formData.sparte_id) === 9
+  const isSach = parseInt(formData.sparte_id) === 8
+  
+  // 🔍 DEBUG: Zeigt die aktuelle Sparte-ID in der Console
+  useEffect(() => {
+    if (formData.sparte_id) {
+      console.log('🔍 DEBUG - Gewählte Sparte-ID:', formData.sparte_id)
+      console.log('🔍 DEBUG - isUVG:', isUVG, '| isKTG:', isKTG, '| isSach:', isSach, '| isHaft:', isHaft)
+    }
+  }, [formData.sparte_id, isUVG, isKTG, isHaft])
   const total = parseCHF(formData.praemie_chf || '0') + parseCHF(formData.gebuehren || '0')
 
   return (
@@ -207,9 +359,7 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
             {isEditMode && (
               <button 
                 className="button-edit"
-                onClick={() => {
-                  setIsEditMode(false)
-                }}
+                onClick={() => setIsEditMode(false)}
                 style={{ background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' }}
               >
                 ✕ Abbrechen
@@ -338,12 +488,6 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
               </div>
             </div>
 
-            {/* BESONDERE BEDINGUNGEN */}
-            <div className="form-group span-3">
-              <label>📋 Besondere Bedingungen</label>
-              <textarea name="bemerkungen" value={formData.bemerkungen || ''} onChange={handleInputChange} rows="3" placeholder="Besondere Bedingungen..." disabled={!isEditMode} />
-            </div>
-
             {/* BEMERKUNGEN */}
             <div className="form-group span-3">
               <label>Bemerkungen</label>
@@ -379,6 +523,14 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
                     <label>Prämiensatz %</label>
                     <input type="text" name="uvg_bu_praemiensatz" value={formData.uvg_bu_praemiensatz} onChange={handleInputChange} disabled={!isEditMode} />
                   </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Männer BU</label>
+                    <input type="text" name="uvg_lohnsumme_maenner_bu" value={formData.uvg_lohnsumme_maenner_bu || ''} onChange={handleInputChange} placeholder="z.B. 150'000.00" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Frauen BU</label>
+                    <input type="text" name="uvg_lohnsumme_frauen_bu" value={formData.uvg_lohnsumme_frauen_bu || ''} onChange={handleInputChange} placeholder="z.B. 120'000.00" disabled={!isEditMode} />
+                  </div>
                 </div>
 
                 <div className="form-grid-3col span-3">
@@ -395,9 +547,255 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
                     <label>Prämiensatz %</label>
                     <input type="text" name="uvg_nbu_praemiensatz" value={formData.uvg_nbu_praemiensatz} onChange={handleInputChange} disabled={!isEditMode} />
                   </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Männer NBU</label>
+                    <input type="text" name="uvg_lohnsumme_maenner_nbu" value={formData.uvg_lohnsumme_maenner_nbu || ''} onChange={handleInputChange} placeholder="z.B. 150'000.00" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Frauen NBU</label>
+                    <input type="text" name="uvg_lohnsumme_frauen_nbu" value={formData.uvg_lohnsumme_frauen_nbu || ''} onChange={handleInputChange} placeholder="z.B. 120'000.00" disabled={!isEditMode} />
+                  </div>
                 </div>
               </>
             )}
+
+            {/* KTG SECTION */}
+            {isKTG && (
+              <>
+                <div className="form-grid-3col span-3">
+                  <h4 style={{ gridColumn: '1 / -1' }}>✓ KTG-Grunddaten</h4>
+                  <div className="form-group">
+                    <label>Maximaler versicherter Lohn CHF</label>
+                    <input type="text" name="ktg_max_versicherter_lohn" value={formData.ktg_max_versicherter_lohn || ''} onChange={handleInputChange} placeholder="300'000.00" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Taggeld %</label>
+                    <select name="ktg_taggeld" value={formData.ktg_taggeld || '80'} onChange={handleInputChange} disabled={!isEditMode}>
+                      <option value="80">80%</option>
+                      <option value="85">85%</option>
+                      <option value="88">88%</option>
+                      <option value="90">90%</option>
+                      <option value="100">100%</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Wartefrist</label>
+                    <select name="ktg_wartefrist" value={formData.ktg_wartefrist || '30'} onChange={handleInputChange} disabled={!isEditMode}>
+                      <option value="0">0 Tage</option>
+                      <option value="2">2 Tage</option>
+                      <option value="7">7 Tage</option>
+                      <option value="14">14 Tage</option>
+                      <option value="30">30 Tage</option>
+                      <option value="60">60 Tage</option>
+                      <option value="90">90 Tage</option>
+                      <option value="180">180 Tage</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Wartefrist-Art</label>
+                    <select name="ktg_wartefrist_art" value={formData.ktg_wartefrist_art || 'je Fall'} onChange={handleInputChange} disabled={!isEditMode}>
+                      <option value="je Fall">je Fall</option>
+                      <option value="je Kalenderjahr">je Kalenderjahr</option>
+                      <option value="je Arbeitsjahr">je Arbeitsjahr</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Leistungsdauer</label>
+                    <select name="ktg_leistungsdauer" value={formData.ktg_leistungsdauer || '730 Tage'} onChange={handleInputChange} disabled={!isEditMode}>
+                      <option value="730 Tage">730 Tage</option>
+                      <option value="730 Tage innert 900 Tagen">730 Tage innert 900 Tagen</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 2-GRID FÜR ZUSATZLEISTUNGEN */}
+                <div className="form-grid-2col span-3">
+                  <h4 style={{ gridColumn: '1 / -1' }}>✓ KTG-Zusatzleistungen</h4>
+                  <div className="form-group">
+                    <label>Mutterschaftstaggeld</label>
+                    <input type="text" name="ktg_mutterschaftstaggeld" value={formData.ktg_mutterschaftstaggeld || ''} onChange={handleInputChange} placeholder="Zu ergänzen" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Vaterschaftstaggeld</label>
+                    <input type="text" name="ktg_vaterschaftstaggeld" value={formData.ktg_vaterschaftstaggeld || ''} onChange={handleInputChange} placeholder="Zu ergänzen" disabled={!isEditMode} />
+                  </div>
+                </div>
+
+                {/* 2-GRID FÜR PRÄMIENSÄTZE & LOHNSUMMEN */}
+                <div className="form-grid-2col span-3">
+                  <h4 style={{ gridColumn: '1 / -1' }}>✓ KTG-Prämiensätze & Lohnsummen</h4>
+                  <div className="form-group">
+                    <label>Prämiensatz Männer %</label>
+                    <input type="text" name="ktg_praemiensatz_maenner" value={formData.ktg_praemiensatz_maenner || ''} onChange={handleInputChange} placeholder="z.B. 1.25" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Prämiensatz Frauen %</label>
+                    <input type="text" name="ktg_praemiensatz_frauen" value={formData.ktg_praemiensatz_frauen || ''} onChange={handleInputChange} placeholder="z.B. 1.50" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Männer CHF</label>
+                    <input type="text" name="ktg_lohnsumme_maenner" value={formData.ktg_lohnsumme_maenner || ''} onChange={handleInputChange} placeholder="z.B. 150'000.00" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Frauen CHF</label>
+                    <input type="text" name="ktg_lohnsumme_frauen" value={formData.ktg_lohnsumme_frauen || ''} onChange={handleInputChange} placeholder="z.B. 120'000.00" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Mutterschaft EO CHF</label>
+                    <input type="text" name="ktg_lohnsumme_mutterschaft_eo" value={formData.ktg_lohnsumme_mutterschaft_eo || ''} onChange={handleInputChange} placeholder="z.B. 50'000.00" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Mutterschaft übersteigend CHF</label>
+                    <input type="text" name="ktg_lohnsumme_mutterschaft_uebersteigend" value={formData.ktg_lohnsumme_mutterschaft_uebersteigend || ''} onChange={handleInputChange} placeholder="z.B. 30'000.00" disabled={!isEditMode} />
+                  </div>
+                  <div className="form-group">
+                    <label>Lohnsumme Vaterschaft CHF</label>
+                    <input type="text" name="ktg_lohnsumme_vaterschaft" value={formData.ktg_lohnsumme_vaterschaft || ''} onChange={handleInputChange} placeholder="z.B. 20'000.00" disabled={!isEditMode} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* HAFTPFLICHT SECTION */}
+            {isHaft && (
+              <>
+                <div className="form-grid-3col span-3">
+                  <h4 style={{ gridColumn: '1 / -1' }}>✓ Haftpflicht-Grunddaten</h4>
+                  <div className="form-group">
+                    <label>AHV-Lohnsumme CHF</label>
+                    <input 
+                      type="text" 
+                      name="haft_ahv_lohnsumme" 
+                      value={formData.haft_ahv_lohnsumme || ''} 
+                      onChange={handleInputChange} 
+                      placeholder="z.B. 500'000.00" 
+                      disabled={!isEditMode} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Umsatz CHF</label>
+                    <input 
+                      type="text" 
+                      name="haft_umsatz" 
+                      value={formData.haft_umsatz || ''} 
+                      onChange={handleInputChange} 
+                      placeholder="z.B. 1'000'000.00" 
+                      disabled={!isEditMode} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Deklaration</label>
+                    <select 
+                      name="haft_deklaration" 
+                      value={formData.haft_deklaration || 'Pauschal'} 
+                      onChange={handleInputChange} 
+                      disabled={!isEditMode}
+                    >
+                      <option value="Pauschal">Pauschal</option>
+                      <option value="jährlich">jährlich</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-grid-3col span-3">
+                  <h4 style={{ gridColumn: '1 / -1' }}>✓ Grunddeckung</h4>
+                  <div className="form-group">
+                    <label>Garantiesumme CHF</label>
+                    <input 
+                      type="text" 
+                      name="haft_grunddeckung_garantiesumme" 
+                      value={formData.haft_grunddeckung_garantiesumme || ''} 
+                      onChange={handleInputChange} 
+                      placeholder="z.B. 5'000'000.00" 
+                      disabled={!isEditMode} 
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Selbstbehalt CHF</label>
+                    <input 
+                      type="text" 
+                      name="haft_grunddeckung_selbstbehalt" 
+                      value={formData.haft_grunddeckung_selbstbehalt || ''} 
+                      onChange={handleInputChange} 
+                      placeholder="z.B. 500.00" 
+                      disabled={!isEditMode} 
+                    />
+                  </div>
+                </div>
+
+                {/* ZUSATZDECKUNGEN */}
+                <div className="span-3">
+                  <ZusatzdeckungenManager 
+                    policeId={police?.id} 
+                    versichererId={formData.versicherer_id}
+                    sparteId={formData.sparte_id}
+                    isEditMode={isEditMode} 
+                  />
+                </div>
+              </>
+            )}
+
+            {/* SACH SECTION */}
+            {isSach && (
+              <>
+                {/* Versicherungssummen */}
+                <VersicherungsummenSection
+                  formData={formData}
+                  setFormData={setFormData}
+                  isEditMode={isEditMode}
+                />
+
+                {/* Versicherungsorte (mehrere Standorte) */}
+                <VersicherungsorteManager
+                  policeId={formData.id}
+                  isEditMode={isEditMode}
+                />
+
+                {/* Grundversicherung (8 Risiken) */}
+                <GrundversicherungManager
+                  policeId={formData.id}
+                  inventar={formData.sach_inventar}
+                  mfzGesamt={formData.sach_mfz_gesamt}
+                  isEditMode={isEditMode}
+                />
+
+                {/* Betriebsunterbruch (5 Risiken) */}
+                <BetriebsunterbruchManager
+                  policeId={formData.id}
+                  umsatz={formData.sach_umsatz}
+                  isEditMode={isEditMode}
+                />
+
+                {/* Zusatzdeckungen */}
+                <div className="span-3">
+                  <ZusatzdeckungenManager 
+                    policeId={formData.id}
+                    versichererId={formData.versicherer_id}
+                    sparteId={formData.sparte_id}
+                    isEditMode={isEditMode} 
+                  />
+                </div>
+
+                {/* Klauseln */}
+                <div className="span-3" style={{ marginTop: '2rem' }}>
+                  <h4 style={{ 
+                    fontSize: '1rem', 
+                    fontWeight: 600, 
+                    color: '#1f2937', 
+                    marginBottom: '1rem',
+                    paddingBottom: '0.5rem',
+                    borderBottom: '2px solid #e5e7eb'
+                  }}>
+                    📋 Vertragsklauseln
+                  </h4>
+                  <KlauselnTab
+                    policeId={formData.id}
+                    isEditMode={isEditMode}
+                  />
+                </div>
+              </>
+            )}
+
           </div>
 
           {/* RIGHT: TABS + BOXES */}
@@ -420,6 +818,21 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
                     }}
                   >
                     📁 Dateien
+                  </button>
+                  <button 
+                    onClick={() => setRightActiveTab('klauseln')}
+                    style={{
+                      padding: '0.3rem 0.6rem',
+                      fontSize: '0.75rem',
+                      background: rightActiveTab === 'klauseln' ? '#1e40af' : '#f0f0f0',
+                      color: rightActiveTab === 'klauseln' ? 'white' : '#333',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      fontWeight: '500'
+                    }}
+                  >
+                    📋 Klauseln
                   </button>
                   <button 
                     onClick={() => setRightActiveTab('mutations')}
@@ -462,6 +875,52 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
                       )}
                     </div>
                     <DateienTab policeId={police.id} />
+                  </div>
+                )}
+
+                {/* TAB CONTENT - KLAUSELN */}
+                {rightActiveTab === 'klauseln' && (
+                  <div className="right-section documents-section">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', gap: '0.5rem' }}>
+                      <h4 style={{ margin: 0 }}>📋 Vertragsklauseln</h4>
+                      {isEditMode && (
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button 
+                            onClick={() => setShowKlauselVerwaltung(true)}
+                            style={{
+                              padding: '0.3rem 0.6rem',
+                              fontSize: '0.75rem',
+                              backgroundColor: '#475569',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              flexShrink: 0,
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            + Neue Klausel
+                          </button>
+                          <button 
+                            onClick={() => setShowKlauselAuswahl(true)}
+                            style={{
+                              padding: '0.3rem 0.6rem',
+                              fontSize: '0.75rem',
+                              backgroundColor: '#1e40af',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              flexShrink: 0,
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            + Hinzufügen
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <KlauselnTab policeId={police.id} key={`klauseln-${rightActiveTab}-${klauselnRefreshTrigger}`} />
                   </div>
                 )}
 
@@ -562,6 +1021,34 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
             onClose={() => setShowModal(false)}
             onSave={() => {
               setShowModal(false)
+            }}
+          />
+        )}
+
+        {/* KLAUSEL VERWALTUNG MODAL */}
+        {showKlauselVerwaltung && (
+          <KlauselVerwaltungModal 
+            versichererId={formData.versicherer_id}
+            sparteId={formData.sparte_id}
+            onClose={() => setShowKlauselVerwaltung(false)}
+            onSave={() => {
+              setShowKlauselVerwaltung(false)
+              setShowKlauselAuswahl(true)
+            }}
+          />
+        )}
+
+        {/* KLAUSEL AUSWAHL MODAL */}
+        {showKlauselAuswahl && (
+          <KlauselAuswahlModal 
+            policeId={police?.id}
+            versichererId={formData.versicherer_id}
+            sparteId={formData.sparte_id}
+            onClose={() => setShowKlauselAuswahl(false)}
+            onSave={() => {
+              setShowKlauselAuswahl(false)
+              setRightActiveTab('klauseln')
+              setKlauselnRefreshTrigger(prev => prev + 1)  // ← Trigger Refresh
             }}
           />
         )}

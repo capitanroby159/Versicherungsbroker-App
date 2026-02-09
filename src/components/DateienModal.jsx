@@ -94,22 +94,27 @@ function DateienModal({ policeId, onClose, onSave }) {
             </select>
           </div>
 
-          {formData.kategorie === 'Sonstige' && (
-            <div className="form-group">
-              <label>Beschreibung (erforderlich)</label>
-              <input 
-                type="text"
-                name="beschreibung"
-                value={formData.beschreibung}
-                onChange={handleInputChange}
-                placeholder="z.B. Deckungsbestätigung"
-                className="form-input"
-              />
-            </div>
-          )}
+          <div className="form-group">
+            <label>
+              Beschreibung / Bemerkungen
+              {formData.kategorie === 'Sonstige' && <span style={{ color: '#ef4444' }}> *</span>}
+            </label>
+            <textarea
+              name="beschreibung"
+              value={formData.beschreibung}
+              onChange={handleInputChange}
+              placeholder={
+                formData.kategorie === 'Sonstige' 
+                  ? 'z.B. Deckungsbestätigung (erforderlich)' 
+                  : 'Optionale Bemerkung zur Datei (z.B. "Version 2024", "Nachtrag vom 15.01.2026")'
+              }
+              className="form-input"
+              rows="3"
+            />
+          </div>
 
           <div className="form-group">
-            <label>Nextcloud Link</label>
+            <label>Nextcloud Link <span style={{ color: '#ef4444' }}>*</span></label>
             <input 
               type="url"
               name="url"

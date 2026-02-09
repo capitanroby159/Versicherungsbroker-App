@@ -1,0 +1,155 @@
+@import './SharedModal.css';
+
+.btn-create-katalog {
+  padding: 0.4rem 0.75rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-create-katalog:hover {
+  background: #059669;
+}
+
+.katalog-modal {
+  max-width: 800px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s, filter 0.2s;
+}
+
+.katalog-modal.dimmed {
+  opacity: 0.3;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.katalog-liste {
+  margin-bottom: 1rem;
+}
+
+.katalog-kategorie {
+  margin-bottom: 1.5rem;
+}
+
+.katalog-kategorie-titel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid #dbeafe;
+}
+
+.katalog-items {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.katalog-item {
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.katalog-item:hover {
+  border-color: #93c5fd;
+  background: #f0f9ff;
+}
+
+.katalog-item.selected {
+  border-color: #1e40af;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.1);
+}
+
+.katalog-item-name {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.katalog-item-beschreibung {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+
+.katalog-item-detail {
+  font-size: 0.75rem;
+  color: #4b5563;
+  margin-top: 0.25rem;
+  padding-left: 0.25rem;
+}
+
+.katalog-eingabe-bereich {
+  border-top: 2px solid #e5e7eb;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+.katalog-eingabe-bereich h4 {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  color: #1f2937;
+}
+
+.katalog-eingabe-bereich .form-group {
+  margin-bottom: 0.75rem;
+}
+
+.katalog-eingabe-bereich label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.katalog-eingabe-bereich input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.katalog-eingabe-bereich input:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.1);
+}
+
+.katalog-eingabe-bereich small {
+  display: block;
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

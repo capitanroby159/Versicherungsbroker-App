@@ -91,6 +91,20 @@ const styles = `
   width: fit-content;
 }
 
+.datei-beschreibung {
+  font-size: 0.65rem;
+  color: #475569;
+  line-height: 1.3;
+  margin: 0.2rem 0;
+  word-break: break-word;
+  max-height: 2.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .datei-url {
   flex: 1;
   margin-bottom: 0.2rem;
@@ -324,7 +338,7 @@ function DateienTab({ policeId }) {
     }
   }
 
-  const handleDeleteDateei = async (dateiId) => {
+  const handleDeleteDatei = async (dateiId) => {
     if (!window.confirm('Löschen?')) return
     try {
       const token = localStorage.getItem('auth_token')
@@ -384,21 +398,30 @@ function DateienTab({ policeId }) {
                       {datei.kategorie}
                     </span>
                   </div>
+                  
+                  {datei.beschreibung && (
+                    <div className="datei-beschreibung" title={datei.beschreibung}>
+                      {datei.beschreibung}
+                    </div>
+                  )}
+                  
                   <div className="datei-url">
                     <a 
                       href={datei.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="datei-link"
+                      title={datei.url}
                     >
-                      🔗
+                      🔗 Link öffnen
                     </a>
                   </div>
                   <div className="datei-footer">
                     <small>{new Date(datei.created_at).toLocaleDateString('de-CH')}</small>
                     <button 
                       className="btn-delete"
-                      onClick={() => handleDeleteDateei(datei.id)}
+                      onClick={() => handleDeleteDatei(datei.id)}
+                      title="Datei löschen"
                     >
                       ❌
                     </button>

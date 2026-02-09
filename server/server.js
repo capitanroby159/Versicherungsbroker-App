@@ -3,7 +3,6 @@ import express from 'express'
 import cors from 'cors'
 import pool from './database.js'
 
-// 🔧 WICHTIG: dotenv.config() MUSS GANZ OBEN sein!
 dotenv.config()
 
 const app = express()
@@ -11,8 +10,6 @@ const app = express()
 // Middleware
 app.use(cors())
 app.use(express.json())
-
-// Pool an req anhängen
 app.use((req, res, next) => {
   req.pool = pool
   next()
@@ -26,6 +23,9 @@ import policenRoutes from './routes/policen.js'
 import policeDateienRoutes from './routes/policeDateien.js'
 import policenMutationsRoutes from './routes/policenMutations.js'
 import authRoutes from './routes/auth.js'
+import vertragsklauselnRoutes from './routes/vertragsklauselnRoutes.js'
+import zusatzdeckungenRoutes from './routes/zusatzdeckungenRoutes.js'  // ← NEU!
+import sachversicherungRoutes from './routes/sachversicherungRoutes.js'
 
 // Route Registration
 app.use('/api/kunden', kundenRoutes)
@@ -34,7 +34,11 @@ app.use('/api/versicherer', versichererRoutes)
 app.use('/api/policen', policenRoutes)
 app.use('/api/policen', policeDateienRoutes)
 app.use('/api/policen', policenMutationsRoutes)
+app.use('/api/policen', zusatzdeckungenRoutes)  // ← NEU!
 app.use('/api/auth', authRoutes)
+app.use('/api/vertragsklauseln', vertragsklauselnRoutes)
+app.use('/api/policen', sachversicherungRoutes)
+
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -49,8 +53,6 @@ app.use((err, req, res, next) => {
 
 // Server Start
 const PORT = process.env.SERVER_PORT || 5000
-
 app.listen(PORT, () => {
   console.log(`✅ Server läuft auf http://localhost:${PORT}`)
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`)
 })

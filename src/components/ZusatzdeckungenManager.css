@@ -1,0 +1,132 @@
+.zusatzdeckungen-manager {
+  margin-top: 1rem;
+}
+
+.zusatzdeckungen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.zusatzdeckungen-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.add-deckung-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.add-deckung-btn:hover {
+  background: #1e3a8a;
+}
+
+.zusatzdeckungen-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.zusatzdeckungen-table thead {
+  background: #f8faff;
+}
+
+.zusatzdeckungen-table th {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e0e0e0;
+  font-size: 0.8rem;
+}
+
+.zusatzdeckungen-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.zusatzdeckungen-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.zusatzdeckungen-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-input {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.table-input:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.1);
+}
+
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  margin: 0 0.15rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+  border-radius: 3px;
+}
+
+.edit-btn {
+  color: #1e40af;
+}
+
+.edit-btn:hover {
+  background: #eff6ff;
+}
+
+.delete-btn {
+  color: #dc2626;
+}
+
+.delete-btn:hover {
+  background: #fee2e2;
+}
+
+.save-btn {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.save-btn:hover {
+  background: #d1fae5;
+}
+
+.cancel-btn {
+  color: #999;
+  font-weight: bold;
+}
+
+.cancel-btn:hover {
+  background: #f5f5f5;
+}

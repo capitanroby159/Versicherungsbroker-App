@@ -1,3 +1,7 @@
+// ========================================================
+// routes/policenMutations.js - Mutations-Verlauf
+// ========================================================
+
 import express from 'express'
 import { getMutationsHistory } from '../utils/mutations.js'
 import { authenticateToken } from '../middleware/auth.js'
@@ -5,12 +9,12 @@ import { authenticateToken } from '../middleware/auth.js'
 const router = express.Router()
 
 /**
- * GET /api/policen/:policeId/mutations - OHNE Auth
+ * GET /api/policen/:id/mutations - OHNE Auth
  * Holt den kompletten Mutations-Verlauf einer Police
  */
-router.get('/policen/:policeId/mutations', async (req, res) => {
+router.get('/:id/mutations', async (req, res) => {
   try {
-    const { policeId } = req.params
+    const { id: policeId } = req.params
 
     if (!policeId) {
       return res.status(400).json({ error: 'Police-ID erforderlich' })

@@ -111,6 +111,26 @@ router.post('/', authenticateToken, async (req, res) => {
     const [result] = await connection.query('SELECT LAST_INSERT_ID() as id')
     const policeId = result[0].id
 
+    // ========================================
+    // NEU: Erstelle automatisch Risiken für Sach-Policen
+    // ========================================
+    if (parseInt(data.sparte_id) === 8) {
+      console.log('🔧 Erstelle Standard-Risiken für Sach-Police:', policeId)
+      
+      try {
+        // Grundversicherung (8 Risiken)
+        await connection.query('CALL create_default_grundversicherung(?)', [policeId])
+        console.log('✅ Grundversicherung-Risiken erstellt (8 Risiken)')
+        
+        // Betriebsunterbruch (5 Risiken)
+        await connection.query('CALL create_default_betriebsunterbruch(?)', [policeId])
+        console.log('✅ Betriebsunterbruch-Risiken erstellt (5 Risiken)')
+      } catch (procError) {
+        console.error('⚠️ Fehler beim Erstellen der Standard-Risiken:', procError.message)
+        // Nicht kritisch - Police wurde bereits erstellt
+      }
+    }
+
     try {
       await logMutations(req.pool, policeId, {}, data, userId, userName)
     } catch (mutationErr) {

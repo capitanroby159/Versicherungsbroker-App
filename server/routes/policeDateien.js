@@ -9,11 +9,11 @@ import { authenticateToken } from '../middleware/auth.js'
 const router = express.Router()
 
 // ========================================================
-// 1. GET /api/policen/:policeId/dateien - Alle Dateien - OHNE Auth
+// 1. GET /api/policen/:id/dateien - Alle Dateien - OHNE Auth
 // ========================================================
-router.get('/policen/:policeId/dateien', async (req, res) => {
+router.get('/:id/dateien', async (req, res) => {
   try {
-    const { policeId } = req.params
+    const { id: policeId } = req.params
     const { page = 1 } = req.query
     const itemsPerPage = 5
     const offset = (page - 1) * itemsPerPage
@@ -45,17 +45,17 @@ router.get('/policen/:policeId/dateien', async (req, res) => {
       }
     })
   } catch (error) {
-    console.error('❌ GET /api/policen/:policeId/dateien:', error.message)
+    console.error('❌ GET /api/policen/:id/dateien:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
 
 // ========================================================
-// 2. POST /api/policen/:policeId/dateien - Datei hinzufügen - MIT Auth
+// 2. POST /api/policen/:id/dateien - Datei hinzufügen - MIT Auth
 // ========================================================
-router.post('/policen/:policeId/dateien', authenticateToken, async (req, res) => {
+router.post('/:id/dateien', authenticateToken, async (req, res) => {
   try {
-    const { policeId } = req.params
+    const { id: policeId } = req.params
     const { kategorie, beschreibung, url } = req.body
 
     // Validierung
@@ -100,17 +100,17 @@ router.post('/policen/:policeId/dateien', authenticateToken, async (req, res) =>
 
     res.status(201).json(newDatei[0])
   } catch (error) {
-    console.error('❌ POST /api/policen/:policeId/dateien:', error.message)
+    console.error('❌ POST /api/policen/:id/dateien:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
 
 // ========================================================
-// 3. DELETE /api/policen/:policeId/dateien/:dateiId - MIT Auth
+// 3. DELETE /api/policen/:id/dateien/:dateiId - MIT Auth
 // ========================================================
-router.delete('/policen/:policeId/dateien/:dateiId', authenticateToken, async (req, res) => {
+router.delete('/:id/dateien/:dateiId', authenticateToken, async (req, res) => {
   try {
-    const { policeId, dateiId } = req.params
+    const { id: policeId, dateiId } = req.params
 
     // Prüfe ob Datei existiert und zur Police gehört
     const [dateiCheck] = await db.query(
@@ -126,17 +126,17 @@ router.delete('/policen/:policeId/dateien/:dateiId', authenticateToken, async (r
 
     res.json({ message: 'Datei gelöscht', id: dateiId })
   } catch (error) {
-    console.error('❌ DELETE /api/policen/:policeId/dateien/:dateiId:', error.message)
+    console.error('❌ DELETE /api/policen/:id/dateien/:dateiId:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
 
 // ========================================================
-// 4. PUT /api/policen/:policeId/archiv - MIT Auth
+// 4. PUT /api/policen/:id/archiv - MIT Auth
 // ========================================================
-router.put('/policen/:policeId/archiv', authenticateToken, async (req, res) => {
+router.put('/:id/archiv', authenticateToken, async (req, res) => {
   try {
-    const { policeId } = req.params
+    const { id: policeId } = req.params
     const { archiv_url } = req.body
 
     // Police existiert?
@@ -162,7 +162,7 @@ router.put('/policen/:policeId/archiv', authenticateToken, async (req, res) => {
 
     res.json(updatedPolice[0])
   } catch (error) {
-    console.error('❌ PUT /api/policen/:policeId/archiv:', error.message)
+    console.error('❌ PUT /api/policen/:id/archiv:', error.message)
     res.status(500).json({ error: error.message })
   }
 })
