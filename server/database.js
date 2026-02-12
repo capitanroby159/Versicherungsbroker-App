@@ -1,7 +1,27 @@
 import mysql from 'mysql2/promise'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-dotenv.config()
+// Resolve repository root relative to this file so env loading works
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const repoRoot = path.resolve(__dirname, '..')
+
+const envCandidates = [
+  path.join(repoRoot, '.env'),
+  path.join(repoRoot, 'env')
+]
+
+const envPath = envCandidates.find((p) => fs.existsSync(p))
+
+if (envPath) {
+  dotenv.config({ path: envPath })
+} else {
+  // fallback to default behavior (process.env or system env)
+  dotenv.config()
+}
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',

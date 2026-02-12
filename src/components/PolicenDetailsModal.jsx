@@ -88,7 +88,21 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
     haft_umsatz: '',
     haft_deklaration: 'Pauschal',
     haft_grunddeckung_garantiesumme: '',
-    haft_grunddeckung_selbstbehalt: ''
+    haft_grunddeckung_selbstbehalt: '',
+    // Sach-Felder
+    sach_inventar: '',
+    sach_inventar_nicht_fix_freien: '',
+    sach_inventar_fix_installationen: '',
+    sach_inventar_elementar_spezial: '',
+    sach_inventar_container: '',
+    sach_mfz_gesamt: '',
+    sach_mfz_bis_35t: '',
+    sach_mfz_ueber_35t: '',
+    sach_umsatz: '',
+    // Kautionen-Felder
+    kautionen_art: '',
+    kautionen_empfaenger: '',
+    kautionen_bemerkungen: ''
   })
 
   const calculateFaelligkeit = (endDate) => {
@@ -132,7 +146,17 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
         haft_ahv_lohnsumme: police.haft_ahv_lohnsumme ? formatSwissNumber(police.haft_ahv_lohnsumme) : '',
         haft_umsatz: police.haft_umsatz ? formatSwissNumber(police.haft_umsatz) : '',
         haft_grunddeckung_garantiesumme: police.haft_grunddeckung_garantiesumme ? formatSwissNumber(police.haft_grunddeckung_garantiesumme) : '',
-        haft_grunddeckung_selbstbehalt: police.haft_grunddeckung_selbstbehalt ? formatSwissNumber(police.haft_grunddeckung_selbstbehalt) : ''
+        haft_grunddeckung_selbstbehalt: police.haft_grunddeckung_selbstbehalt ? formatSwissNumber(police.haft_grunddeckung_selbstbehalt) : '',
+        // Sach - Formatiert
+        sach_inventar: police.sach_inventar ? formatSwissNumber(police.sach_inventar) : '',
+        sach_inventar_nicht_fix_freien: police.sach_inventar_nicht_fix_freien ? formatSwissNumber(police.sach_inventar_nicht_fix_freien) : '',
+        sach_inventar_fix_installationen: police.sach_inventar_fix_installationen ? formatSwissNumber(police.sach_inventar_fix_installationen) : '',
+        sach_inventar_elementar_spezial: police.sach_inventar_elementar_spezial ? formatSwissNumber(police.sach_inventar_elementar_spezial) : '',
+        sach_inventar_container: police.sach_inventar_container ? formatSwissNumber(police.sach_inventar_container) : '',
+        sach_mfz_gesamt: police.sach_mfz_gesamt ? formatSwissNumber(police.sach_mfz_gesamt) : '',
+        sach_mfz_bis_35t: police.sach_mfz_bis_35t ? formatSwissNumber(police.sach_mfz_bis_35t) : '',
+        sach_mfz_ueber_35t: police.sach_mfz_ueber_35t ? formatSwissNumber(police.sach_mfz_ueber_35t) : '',
+        sach_umsatz: police.sach_umsatz ? formatSwissNumber(police.sach_umsatz) : ''
       }))
     }
     fetchSparten()
@@ -173,13 +197,14 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
     const { name, value, type, checked } = e.target
     let finalValue = type === 'checkbox' ? checked : value
 
-    // Formatiere Lohnsummen-Felder und Haft-Beträge beim Eingeben
+    // Formatiere Lohnsummen-Felder, Haft-Beträge und Sach-Beträge beim Eingeben
     if (name.includes('lohnsumme') || 
         name === 'ktg_max_versicherter_lohn' ||
         name === 'haft_ahv_lohnsumme' ||
         name === 'haft_umsatz' ||
         name === 'haft_grunddeckung_garantiesumme' ||
-        name === 'haft_grunddeckung_selbstbehalt') {
+        name === 'haft_grunddeckung_selbstbehalt' ||
+        name.startsWith('sach_')) {
       finalValue = formatSwissNumber(value)
     }
 
@@ -280,8 +305,7 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
         haft_deklaration: cleanString(formData.haft_deklaration),
         haft_grunddeckung_garantiesumme: cleanNumber(formData.haft_grunddeckung_garantiesumme),
         haft_grunddeckung_selbstbehalt: cleanNumber(formData.haft_grunddeckung_selbstbehalt),
-        haft_grunddeckung_selbstbehalt: cleanNumber(formData.haft_grunddeckung_selbstbehalt),
-        // SACH-FELDER
+        // Sach-Felder
         sach_inventar: cleanNumber(formData.sach_inventar),
         sach_inventar_nicht_fix_freien: cleanNumber(formData.sach_inventar_nicht_fix_freien),
         sach_inventar_fix_installationen: cleanNumber(formData.sach_inventar_fix_installationen),
@@ -290,7 +314,11 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
         sach_mfz_gesamt: cleanNumber(formData.sach_mfz_gesamt),
         sach_mfz_bis_35t: cleanNumber(formData.sach_mfz_bis_35t),
         sach_mfz_ueber_35t: cleanNumber(formData.sach_mfz_ueber_35t),
-        sach_umsatz: cleanNumber(formData.sach_umsatz)
+        sach_umsatz: cleanNumber(formData.sach_umsatz),
+        // Kautionen-Felder
+        kautionen_art: cleanString(formData.kautionen_art),
+        kautionen_empfaenger: cleanString(formData.kautionen_empfaenger),
+        kautionen_bemerkungen: cleanString(formData.kautionen_bemerkungen)
       }
 
       console.log('📤 Sende Daten:', dataToSend)
@@ -326,16 +354,15 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
 
   const isUVG = parseInt(formData.sparte_id) === 5
   const isKTG = parseInt(formData.sparte_id) === 6
-  const isHaft = parseInt(formData.sparte_id) === 9
   const isSach = parseInt(formData.sparte_id) === 8
-  
+  const isHaft = parseInt(formData.sparte_id) === 9
+  const isKautionen = parseInt(formData.sparte_id) === 10
+
   // 🔍 DEBUG: Zeigt die aktuelle Sparte-ID in der Console
   useEffect(() => {
-    if (formData.sparte_id) {
-      console.log('🔍 DEBUG - Gewählte Sparte-ID:', formData.sparte_id)
-      console.log('🔍 DEBUG - isUVG:', isUVG, '| isKTG:', isKTG, '| isSach:', isSach, '| isHaft:', isHaft)
-    }
-  }, [formData.sparte_id, isUVG, isKTG, isHaft])
+    console.log('🔍 DEBUG - isUVG:', isUVG, '| isKTG:', isKTG, '| isSach:', isSach, '| isHaft:', isHaft, '| isKautionen:', isKautionen)
+  }, [formData.sparte_id, isUVG, isKTG, isSach, isHaft, isKautionen])
+
   const total = parseCHF(formData.praemie_chf || '0') + parseCHF(formData.gebuehren || '0')
 
   return (
@@ -796,6 +823,83 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
               </>
             )}
 
+            {/* KAUTIONEN SECTION */}
+            {isKautionen && (
+              <>
+                <h4 style={{ gridColumn: '1 / -1', marginTop: '2rem' }}>🏛️ Kautionen</h4>
+
+                {/* Kautionsart */}
+                <div className="form-group">
+                  <label>Kautionsart:</label>
+                  <select
+                    name="kautionen_art"
+                    value={formData.kautionen_art || ''}
+                    onChange={handleInputChange}
+                    disabled={!isEditMode}
+                    style={{ width: '100%', padding: '8px' }}
+                  >
+                    <option value="">Bitte wählen...</option>
+                    <option value="Baugarantie">Baugarantie</option>
+                    <option value="Mietkaution">Mietkaution</option>
+                    <option value="Andere">Andere</option>
+                  </select>
+                </div>
+
+                {/* Empfänger */}
+                <div className="form-group span-2">
+                  <label>Empfänger:</label>
+                  <textarea
+                    name="kautionen_empfaenger"
+                    value={formData.kautionen_empfaenger || ''}
+                    onChange={handleInputChange}
+                    disabled={!isEditMode}
+                    rows={4}
+                    placeholder="Name und Adresse des Empfängers..."
+                    style={{ width: '100%', padding: '8px', fontFamily: 'inherit', resize: 'vertical' }}
+                  />
+                </div>
+
+                {/* Bemerkungen */}
+                <div className="form-group span-3">
+                  <label>Bemerkungen:</label>
+                  <textarea
+                    name="kautionen_bemerkungen"
+                    value={formData.kautionen_bemerkungen || ''}
+                    onChange={handleInputChange}
+                    disabled={!isEditMode}
+                    rows={6}
+                    placeholder="Zusätzliche Bemerkungen zur Kaution..."
+                    style={{ width: '100%', padding: '8px', fontFamily: 'inherit', resize: 'vertical' }}
+                  />
+                </div>
+
+                {/* Zusatzdeckungen */}
+                <div className="span-3" style={{ marginTop: '2rem' }}>
+                  <ZusatzdeckungenManager 
+                    policeId={formData.id}
+                    versichererId={formData.versicherer_id}
+                    sparteId={formData.sparte_id}
+                    isEditMode={isEditMode} 
+                  />
+                </div>
+
+                {/* Vertragsklauseln */}
+                <div className="span-3" style={{ marginTop: '2rem' }}>
+                  <h4 style={{ 
+                    fontSize: '1rem', 
+                    fontWeight: 600, 
+                    color: '#1f2937', 
+                    marginBottom: '1rem',
+                    paddingBottom: '0.5rem',
+                    borderBottom: '2px solid #e5e7eb'
+                  }}>
+                    📋 Vertragsklauseln
+                  </h4>
+                  <KlauselnTab policeId={formData.id} isEditMode={isEditMode} />
+                </div>
+              </>
+            )}
+
           </div>
 
           {/* RIGHT: TABS + BOXES */}
@@ -1048,7 +1152,7 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
             onSave={() => {
               setShowKlauselAuswahl(false)
               setRightActiveTab('klauseln')
-              setKlauselnRefreshTrigger(prev => prev + 1)  // ← Trigger Refresh
+              setKlauselnRefreshTrigger(prev => prev + 1)
             }}
           />
         )}

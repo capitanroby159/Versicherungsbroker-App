@@ -1,6 +1,6 @@
 // src/components/Tracking/Projekte/Projekte.jsx
 import React, { useState, useEffect } from 'react';
-import './Projekte.css';
+import './projekte.css';
 
 export default function Projekte() {
   const [projekte, setProjekte] = useState([]);
