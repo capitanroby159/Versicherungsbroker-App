@@ -21,60 +21,48 @@ const Layout = () => {
         <div className="navbar-brand">
           <h2>Versicherungsbroker</h2>
         </div>
-
         <ul className="navbar-menu">
           <li>
-            <a
-              href="/"
-              className={`navbar-link ${isActive('/') ? 'active' : ''}`}
-            >
+            <a href="/" className={`navbar-link ${isActive('/') ? 'active' : ''}`}>
               Kunden
             </a>
           </li>
           <li>
-            <a
-              href="/immobilien"
-              className={`navbar-link ${isActive('/immobilien') ? 'active' : ''}`}
-            >
+            <a href="/immobilien" className={`navbar-link ${isActive('/immobilien') ? 'active' : ''}`}>
               Immobilien
             </a>
           </li>
           <li>
-            <a
-              href="/policen"
-              className={`navbar-link ${isActive('/policen') ? 'active' : ''}`}
-            >
+            <a href="/policen" className={`navbar-link ${isActive('/policen') ? 'active' : ''}`}>
               Policen
             </a>
           </li>
           <li>
-            <a
-              href="/versicherer"
-              className={`navbar-link ${isActive('/versicherer') ? 'active' : ''}`}
-            >
+            <a href="/versicherer" className={`navbar-link ${isActive('/versicherer') ? 'active' : ''}`}>
               Versicherer
             </a>
           </li>
           <li>
-            <a
-              href="/tracking"
-              className={`navbar-link ${isActive('/tracking') ? 'active' : ''}`}
-            >
+            <a href="/tracking" className={`navbar-link ${isActive('/tracking') ? 'active' : ''}`}>
               Tracking
             </a>
           </li>
+          {/* ✅ Admin-Link: nur für Rolle 1 (Admin) sichtbar */}
+          {user?.rolle_id === 1 && (
+            <li>
+              <a href="/admin" className={`navbar-link ${isActive('/admin') ? 'active' : ''}`}>
+                ⚙️ Admin
+              </a>
+            </li>
+          )}
         </ul>
-
         <div className="navbar-user">
-          <span>
-            {user?.vorname} {user?.nachname}
-          </span>
+          <span>{user?.vorname} {user?.nachname}</span>
           <button className="btn btn-secondary" onClick={handleLogout}>
             Abmelden
           </button>
         </div>
       </nav>
-
       <main className="layout-main">
         <Outlet />
       </main>

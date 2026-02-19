@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import KundenFormModal from './KundenFormModal'
 import PolicenTab from './PolicenTab'
 import './KundenDetailsPage.css'
+import KundenZeiterfassung from './Zeiterfassung/KundenZeiterfassung'
 
 function KundenDetailsPage() {
   const { id } = useParams()
@@ -11,7 +12,7 @@ function KundenDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showEditForm, setShowEditForm] = useState(false)
-  const [activeTab, setActiveTab] = useState('übersicht') // 'übersicht', 'policen', 'immobilien', 'schadenfaelle'
+  const [activeTab, setActiveTab] = useState('übersicht')
 
   useEffect(() => {
     fetchKunde()
@@ -71,7 +72,6 @@ function KundenDetailsPage() {
     }
   }
 
-  // Formatiere Datum zu dd.mm.yyyy für Anzeige
   const formatDateForDisplay = (dateString) => {
     if (!dateString) return '-'
     if (typeof dateString !== 'string') return '-'
@@ -126,7 +126,10 @@ function KundenDetailsPage() {
   return (
     <div className="details-page-wrapper">
       <div className="page-container">
+
+        {/* ============================================================ */}
         {/* HEADER */}
+        {/* ============================================================ */}
         <div className="details-header">
           <div className="header-left">
             <button className="back-button" onClick={() => navigate('/kunden')}>← Zurück</button>
@@ -155,35 +158,36 @@ function KundenDetailsPage() {
         {/* TAB MENU */}
         {/* ============================================================ */}
         <div className="tabs-menu">
-          <button 
+          <button
             className={`tab-button ${activeTab === 'übersicht' ? 'active' : ''}`}
             onClick={() => setActiveTab('übersicht')}
           >
             👤 Übersicht
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === 'policen' ? 'active' : ''}`}
             onClick={() => setActiveTab('policen')}
           >
             📋 Policen
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === 'immobilien' ? 'active' : ''}`}
             onClick={() => setActiveTab('immobilien')}
           >
             🏠 Immobilien
           </button>
-          <button 
+          <button
             className={`tab-button ${activeTab === 'schadenfaelle' ? 'active' : ''}`}
             onClick={() => setActiveTab('schadenfaelle')}
           >
             ⚠️ Schadenfälle
           </button>
-          <button 
-            className={`tab-button ${activeTab === 'aktivitaeten' ? 'active' : ''}`}
-            onClick={() => setActiveTab('aktivitaeten')}
+          {/* ✅ FIX 1+2: Key und Label korrigiert */}
+          <button
+            className={`tab-button ${activeTab === 'zeiterfassung' ? 'active' : ''}`}
+            onClick={() => setActiveTab('zeiterfassung')}
           >
-            📝 Aktivitäten
+            ⏱ Zeiterfassung
           </button>
         </div>
 
@@ -192,6 +196,7 @@ function KundenDetailsPage() {
         {/* ============================================================ */}
         {activeTab === 'übersicht' && (
           <div className="details-page-content">
+
             {/* PERSÖNLICH */}
             <div className="form-section">
               <h3>👤 Persönlich</h3>
@@ -223,7 +228,6 @@ function KundenDetailsPage() {
                   <p>{kunde.verhaeltnis || '-'}</p>
                 </div>
               </div>
-
               <div className="form-row-3">
                 <div className="detail-field">
                   <label>IBAN</label>
@@ -235,7 +239,7 @@ function KundenDetailsPage() {
             {/* FAMILIE */}
             <div className="form-section">
               <h3>👨‍👩‍👧‍👦 Familie</h3>
-              
+
               {(kunde.verhaeltnis === 'Verheiratet' || kunde.verhaeltnis === 'Konkubinat') && (
                 <div className="form-row-2">
                   <div className="detail-field">
@@ -263,7 +267,7 @@ function KundenDetailsPage() {
                   <h4>
                     👶 Kinder {kunde.kinder && kunde.kinder.length > 0 ? `(${kunde.kinder.length})` : ''}
                   </h4>
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowEditForm(true)}
                     className="kinder-add-button"
@@ -271,7 +275,7 @@ function KundenDetailsPage() {
                     + Kind
                   </button>
                 </div>
-                
+
                 {kunde.kinder && kunde.kinder.length > 0 ? (
                   <div className="kinder-list">
                     {kunde.kinder.map((kind, index) => (
@@ -318,7 +322,7 @@ function KundenDetailsPage() {
             {/* KONTAKT */}
             <div className="form-section">
               <h3>📞 Kontakt</h3>
-              
+
               <div className="contact-group">
                 <h4>📧 E-Mails</h4>
                 {kunde.emails && Array.isArray(kunde.emails) && kunde.emails.length > 0 ? (
@@ -349,7 +353,6 @@ function KundenDetailsPage() {
                       const telefon = typeof item === 'object' ? item.telefon : item
                       const typ = typeof item === 'object' ? item.typ : 'Mobil'
                       const isWhatsApp = telefon && (telefon.includes('+') || telefon.startsWith('0'))
-                      
                       return (
                         <div key={index} className="contact-row">
                           <div className="phone-actions">
@@ -357,10 +360,10 @@ function KundenDetailsPage() {
                               ☎️ Anrufen
                             </a>
                             {isWhatsApp && (
-                              <a 
-                                href={`https://wa.me/${telefon.replace(/[^\d+]/g, '')}`} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
+                              <a
+                                href={`https://wa.me/${telefon.replace(/[^\d+]/g, '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="contact-link whatsapp"
                               >
                                 💬 WhatsApp
@@ -448,24 +451,27 @@ function KundenDetailsPage() {
         )}
 
         {/* ============================================================ */}
-        {/* TAB CONTENT - AKTIVITÄTEN */}
+        {/* TAB CONTENT - ZEITERFASSUNG */}
+        {/* ✅ FIX 3: 'firma' → 'kunde', kundeName korrekt zusammengesetzt */}
         {/* ============================================================ */}
-        {activeTab === 'aktivitaeten' && (
-          <div className="details-page-content">
-            <div className="form-section">
-              <p className="tab-placeholder-text">🚧 Aktivitäten-Tab kommt bald...</p>
-            </div>
-          </div>
+        {activeTab === 'zeiterfassung' && (
+          <KundenZeiterfassung
+            kundeId={kunde.id}
+            kundeName={`${kunde.vorname} ${kunde.nachname}`}
+          />
         )}
 
+        {/* ============================================================ */}
         {/* EDIT FORM MODAL */}
+        {/* ============================================================ */}
         {showEditForm && (
-          <KundenFormModal 
+          <KundenFormModal
             kunde={kunde}
             onCancel={() => setShowEditForm(false)}
             onSaveSuccess={handleSaveKunde}
           />
         )}
+
       </div>
     </div>
   )

@@ -26,6 +26,8 @@ import authRoutes from './routes/auth.js'
 import vertragsklauselnRoutes from './routes/vertragsklauselnRoutes.js'
 import zusatzdeckungenRoutes from './routes/zusatzdeckungenRoutes.js'  // ← NEU!
 import sachversicherungRoutes from './routes/sachversicherungRoutes.js'
+import zeiterfassungRouter from './routes/zeiterfassung.js'
+import benutzerRouter from './routes/benutzer.js'
 
 // Route Registration
 app.use('/api/kunden', kundenRoutes)
@@ -38,6 +40,8 @@ app.use('/api/policen', zusatzdeckungenRoutes)  // ← NEU!
 app.use('/api/auth', authRoutes)
 app.use('/api/vertragsklauseln', vertragsklauselnRoutes)
 app.use('/api/policen', sachversicherungRoutes)
+app.use('/api/zeiterfassung', zeiterfassungRouter)
+app.use('/api/benutzer',      benutzerRouter)
 
 
 // Health Check

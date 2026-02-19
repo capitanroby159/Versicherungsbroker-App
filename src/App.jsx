@@ -13,7 +13,7 @@ import KundenDetailsPage from './components/KundenDetailsPage'  // ← HIER
 import FirmenDetailsPage from './components/FirmenDetailsPage'  // ← HIER auch components!
 import VersichererList from './pages/Versicherer/VersichererList'
 import VersichererDetail from './pages/Versicherer/VersichererDetail'
-import TrackingPage from './components/TrackingModule/TrackingPage'
+import AdminDashboard from './pages/Admin/AdminDashboard'
 
 function App() {
   return (
@@ -85,11 +85,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/tracking"
+            <Route 
+              path="/admin"
               element={
                 <ProtectedRoute>
-                  <TrackingPage />
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />

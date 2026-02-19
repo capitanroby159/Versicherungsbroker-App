@@ -1,0 +1,542 @@
+/* ============================================================
+   Zeiterfassung.css
+   ============================================================ */
+
+/* ── Container ── */
+.zeiterfassung-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Header-Bar ── */
+.ze-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ze-header-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.ze-totals {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.ze-total-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ze-total-badge.zeit {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.ze-total-badge.kosten {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ── Filter-Leiste ── */
+.ze-filter-bar {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.ze-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.ze-filter-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.ze-filter-group input,
+.ze-filter-group select {
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  background: white;
+  transition: all 0.2s;
+}
+
+.ze-filter-group input:focus,
+.ze-filter-group select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.ze-filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-bottom: 1px;
+}
+
+/* ── Tabelle ── */
+.ze-table-wrap {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ze-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ze-table thead {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1e40af 100%);
+  color: white;
+}
+
+.ze-table th {
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.ze-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.ze-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ze-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.ze-table .col-right {
+  text-align: right;
+  font-weight: 600;
+}
+
+.ze-table .col-center {
+  text-align: center;
+}
+
+.ze-art-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ze-art-badge.Anruf        { background: #dbeafe; color: #1e40af; }
+.ze-art-badge.Korrespondenz { background: #fef3c7; color: #92400e; }
+.ze-art-badge.Termin       { background: #dcfce7; color: #166534; }
+.ze-art-badge.Fahrt        { background: #fce7f3; color: #9d174d; }
+
+/* ── Total-Zeile ── */
+.ze-total-row td {
+  background: #f0f9ff;
+  border-top: 2px solid #0369a1;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+/* ── Empty State ── */
+.ze-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* ── Actions ── */
+.ze-row-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.ze-btn-icon {
+  padding: 5px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.ze-btn-icon.edit   { background: #dbeafe; color: #1e40af; }
+.ze-btn-icon.delete { background: #fee2e2; color: #dc2626; }
+.ze-btn-icon.edit:hover   { background: #bfdbfe; }
+.ze-btn-icon.delete:hover { background: #fecaca; }
+
+/* ── Buttons ── */
+.ze-btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.ze-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.ze-btn.primary  { background: #0369a1; color: white; }
+.ze-btn.primary:hover:not(:disabled)  { background: #0284c7; }
+
+.ze-btn.success  { background: #059669; color: white; }
+.ze-btn.success:hover:not(:disabled)  { background: #047857; }
+
+.ze-btn.secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+.ze-btn.secondary:hover:not(:disabled) { background: #e5e7eb; }
+
+.ze-btn.danger   { background: #dc2626; color: white; }
+.ze-btn.danger:hover:not(:disabled)   { background: #b91c1c; }
+
+/* ── Modal Overlay ── */
+.ze-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+}
+
+.ze-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+
+.ze-modal-lg {
+  max-width: 680px;
+}
+
+.ze-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ze-modal-header h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.ze-modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.ze-modal-close:hover { background: #f3f4f6; color: #374151; }
+
+.ze-modal-body {
+  padding: 20px 24px;
+}
+
+.ze-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+/* ── Form ── */
+.ze-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.ze-form-row.three {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.ze-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.ze-form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.ze-form-group label .required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
+.ze-form-group input,
+.ze-form-group select,
+.ze-form-group textarea {
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.ze-form-group input:focus,
+.ze-form-group select:focus,
+.ze-form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.ze-form-group textarea { resize: vertical; min-height: 70px; }
+
+.ze-form-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 3px;
+}
+
+.ze-ansatz-preview {
+  font-size: 12px;
+  color: #059669;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ── Export Perioden-Buttons ── */
+.ze-periode-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.ze-periode-btn {
+  padding: 7px 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #374151;
+}
+
+.ze-periode-btn:hover { border-color: #0369a1; color: #0369a1; }
+.ze-periode-btn.active { background: #0369a1; border-color: #0369a1; color: white; }
+
+/* ── Courtage Section ── */
+.ze-courtage-section {
+  background: #fefce8;
+  border: 1px solid #fde047;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 4px;
+}
+
+.ze-courtage-section h4 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #713f12;
+}
+
+/* ── Export Preview ── */
+.ze-export-summary {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 14px;
+}
+
+.ze-export-summary h4 {
+  margin: 0 0 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+.ze-export-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  color: #374151;
+}
+
+.ze-export-row.total {
+  border-top: 1px solid #7dd3fc;
+  margin-top: 8px;
+  padding-top: 8px;
+  font-weight: 700;
+  color: #0369a1;
+  font-size: 14px;
+}
+
+/* ============================================================
+   Benutzerverwaltung
+   ============================================================ */
+
+.bv-wrap {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.bv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.bv-header h2 { margin: 0; font-size: 20px; color: #1f2937; }
+
+.bv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.bv-table thead {
+  background: #f1f5f9;
+}
+
+.bv-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #475569;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.bv-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+}
+
+.bv-table tbody tr:hover { background: #f8fafc; }
+
+.bv-aktiv-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bv-aktiv-badge.aktiv    { background: #dcfce7; color: #166534; }
+.bv-aktiv-badge.inaktiv  { background: #f1f5f9; color: #64748b; }
+
+.bv-rolle-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .ze-form-row, .ze-form-row.three {
+    grid-template-columns: 1fr;
+  }
+
+  .ze-filter-bar {
+    flex-direction: column;
+  }
+
+  .ze-filter-group {
+    width: 100%;
+  }
+
+  .ze-table {
+    font-size: 12px;
+  }
+
+  .ze-table th,
+  .ze-table td {
+    padding: 8px 10px;
+  }
+}
+
+.badge-purple {
+  background: #ede9fe;
+  color: #6d28d9;
+}

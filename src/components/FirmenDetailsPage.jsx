@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import PolicenTab from './PolicenTab'
 import './KundenDetailsPage.css'
+import KundenZeiterfassung from './Zeiterfassung/KundenZeiterfassung'
 
 function FirmenDetailsPage() {
   const { id } = useParams()
@@ -9,7 +10,7 @@ function FirmenDetailsPage() {
   const [firma, setFirma] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [activeTab, setActiveTab] = useState('übersicht') // 'übersicht', 'policen', 'immobilien', 'schadenfaelle', 'aktivitaeten'
+  const [activeTab, setActiveTab] = useState('übersicht')
 
   useEffect(() => {
     fetchFirma()
@@ -72,7 +73,10 @@ function FirmenDetailsPage() {
 
   return (
     <div className="details-page">
+
+      {/* ============================================================ */}
       {/* HEADER */}
+      {/* ============================================================ */}
       <div className="page-header">
         <div className="details-header">
           <div className="header-left">
@@ -103,35 +107,36 @@ function FirmenDetailsPage() {
       {/* TAB MENU */}
       {/* ============================================================ */}
       <div className="tabs-menu">
-        <button 
+        <button
           className={`tab-button ${activeTab === 'übersicht' ? 'active' : ''}`}
           onClick={() => setActiveTab('übersicht')}
         >
           🏢 Übersicht
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'policen' ? 'active' : ''}`}
           onClick={() => setActiveTab('policen')}
         >
           📋 Policen
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'immobilien' ? 'active' : ''}`}
           onClick={() => setActiveTab('immobilien')}
         >
           🏠 Immobilien
         </button>
-        <button 
+        <button
           className={`tab-button ${activeTab === 'schadenfaelle' ? 'active' : ''}`}
           onClick={() => setActiveTab('schadenfaelle')}
         >
           ⚠️ Schadenfälle
         </button>
-        <button 
-          className={`tab-button ${activeTab === 'aktivitaeten' ? 'active' : ''}`}
-          onClick={() => setActiveTab('aktivitaeten')}
+        {/* ✅ FIX 1+2: Key 'aktivitaeten' → 'zeiterfassung', Label aktualisiert */}
+        <button
+          className={`tab-button ${activeTab === 'zeiterfassung' ? 'active' : ''}`}
+          onClick={() => setActiveTab('zeiterfassung')}
         >
-          📝 Aktivitäten
+          ⏱ Zeiterfassung
         </button>
       </div>
 
@@ -140,6 +145,7 @@ function FirmenDetailsPage() {
       {/* ============================================================ */}
       {activeTab === 'übersicht' && (
         <div className="details-page-content">
+
           {/* FIRMA INFORMATIONEN */}
           <div className="form-section">
             <h3>🏢 Firmeninformationen</h3>
@@ -217,7 +223,7 @@ function FirmenDetailsPage() {
           {/* KONTAKT */}
           <div className="form-section">
             <h3>📞 Kontakt</h3>
-            
+
             <div className="detail-field full-width">
               <label>E-Mails</label>
               {firma.emails && firma.emails.length > 0 ? (
@@ -326,15 +332,16 @@ function FirmenDetailsPage() {
       )}
 
       {/* ============================================================ */}
-      {/* TAB CONTENT - AKTIVITÄTEN */}
+      {/* TAB CONTENT - ZEITERFASSUNG */}
+      {/* ✅ FIX 3: Placeholder ersetzt durch KundenZeiterfassung-Komponente */}
       {/* ============================================================ */}
-      {activeTab === 'aktivitaeten' && (
-        <div className="details-page-content">
-          <div className="form-section">
-            <p style={{ color: '#999', fontStyle: 'italic' }}>🚧 Aktivitäten-Tab kommt bald...</p>
-          </div>
-        </div>
+      {activeTab === 'zeiterfassung' && (
+        <KundenZeiterfassung
+          kundeId={firma.id}
+          kundeName={firma.firma_name}
+        />
       )}
+
     </div>
   )
 }
