@@ -961,7 +961,7 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
                     <DateienTab policeId={police.id} />
                   </div>
                 )}
-                
+                git
                 {/* TAB CONTENT - KLAUSELN */}
                 {rightActiveTab === 'klauseln' && (
                   <div className="right-section documents-section">
