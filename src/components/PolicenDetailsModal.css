@@ -256,17 +256,24 @@
 @media (max-width: 1400px) {
   .modal-content-2container {
     grid-template-columns: 1fr;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .container-left {
     padding-right: 0;
+    overflow-y: unset;
+    min-height: unset;
   }
 
   .container-right {
     padding-left: 0;
     border-left: none;
     border-top: 1px solid #e0e0e0;
-    padding-top: 4px;
+    padding-top: 8px;
+    overflow-y: unset;
+    max-width: 100%;
+    min-height: unset;
   }
 
   .right-section {
