@@ -9,24 +9,21 @@ const VersichererList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // WICHTIG: Diese Funktion lädt NUR die LISTE!
-    fetch('http://localhost:5000/api/versicherer')
+    const token = localStorage.getItem('auth_token');
+    fetch('http://localhost:5000/api/versicherer', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
       .then(res => res.json())
-      .then(data => {
-        setVersicherer(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Fehler beim Laden:', err);
-        setLoading(false);
-      });
+      .then(data => { setVersicherer(data); setLoading(false); })
+      .catch(err => { console.error('Fehler beim Laden:', err); setLoading(false); });
   }, []);
 
   const handleDelete = async (v) => {
     if (window.confirm(`Versicherer "${v.name}" wirklich löschen?`)) {
       try {
-        const response = await fetch(`http://localhost:5000/api/versicherer/${v.id}`, { 
-          method: 'DELETE' 
+        const response = await fetch(`http://localhost:5000/api/versicherer/${v.id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
         });
         if (response.ok) {
           setVersicherer(prev => prev.filter(x => x.id !== v.id));
@@ -52,7 +49,6 @@ const VersichererList = () => {
   return (
     <div className="page-wrapper">
       <div className="page-container">
-        {/* HEADER */}
         <div className="list-header">
           <div className="header-left">
             <h1>🏢 Versicherer</h1>
@@ -62,7 +58,6 @@ const VersichererList = () => {
           </button>
         </div>
 
-        {/* SEARCH */}
         <div className="search-container">
           <input
             type="text"
@@ -73,36 +68,23 @@ const VersichererList = () => {
           />
         </div>
 
-        {/* LIST */}
         <div className="versicherer-table">
           {filtered.length === 0 ? (
             <div className="empty-state">
-              <p>
-                {versicherer.length === 0 
-                  ? 'Noch keine Versicherer erfasst' 
-                  : 'Keine Ergebnisse gefunden'}
-              </p>
+              <p>{versicherer.length === 0 ? 'Noch keine Versicherer erfasst' : 'Keine Ergebnisse gefunden'}</p>
             </div>
           ) : (
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Ort</th>
-                  <th>Telefon</th>
-                  <th>Status</th>
-                  <th>ZAV seit</th>
-                  <th>Aktionen</th>
+                  <th>Name</th><th>Ort</th><th>Telefon</th><th>Status</th><th>ZAV seit</th><th>Aktionen</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map(v => (
                   <tr key={v.id} className={v.status !== 'Aktiv' ? 'inactive' : ''}>
                     <td>
-                      <strong 
-                        style={{ cursor: 'pointer', color: '#1e40af' }}
-                        onClick={() => navigate(`/versicherer/${v.id}`)}
-                      >
+                      <strong style={{ cursor: 'pointer', color: '#1e40af' }} onClick={() => navigate(`/versicherer/${v.id}`)}>
                         {v.name}
                       </strong>
                     </td>
@@ -115,18 +97,8 @@ const VersichererList = () => {
                     </td>
                     <td>{v.zav_seit ? new Date(v.zav_seit).toLocaleDateString('de-CH') : '-'}</td>
                     <td>
-                      <button 
-                        className="btn-small"
-                        onClick={() => navigate(`/versicherer/${v.id}`)}
-                      >
-                        Öffnen
-                      </button>
-                      <button 
-                        className="btn-small btn-danger"
-                        onClick={() => handleDelete(v)}
-                      >
-                        Löschen
-                      </button>
+                      <button className="btn-small" onClick={() => navigate(`/versicherer/${v.id}`)}>Öffnen</button>
+                      <button className="btn-small btn-danger" onClick={() => handleDelete(v)}>Löschen</button>
                     </td>
                   </tr>
                 ))}
@@ -135,11 +107,8 @@ const VersichererList = () => {
           )}
         </div>
 
-        {/* COUNTER */}
         {filtered.length > 0 && (
-          <div className="result-count">
-            Zeige {filtered.length} von {versicherer.length} Versicherern
-          </div>
+          <div className="result-count">Zeige {filtered.length} von {versicherer.length} Versicherern</div>
         )}
       </div>
     </div>

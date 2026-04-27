@@ -30,13 +30,13 @@ const VersichererDetail = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await fetch(`http://localhost:5000/api/versicherer/${id}`);
-      
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://localhost:5000/api/versicherer/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (!response.ok) {
         throw new Error(`Server antwortet mit Status ${response.status}`);
       }
-      
       const data = await response.json();
       setVersicherer(data);
     } catch (err) {
@@ -51,26 +51,20 @@ const VersichererDetail = () => {
   const handleSaveSuccess = (newVersicherer) => {
     setVersicherer(newVersicherer);
     setShowEditForm(false);
-    
     if (isNew && newVersicherer.id) {
       navigate(`/versicherer/${newVersicherer.id}`);
     }
   };
 
-  const handleBack = () => {
-    navigate('/versicherer');
-  };
+  const handleBack = () => navigate('/versicherer');
 
   const handleDeleteVersicherer = async () => {
-    if (!confirm('Versicherer wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) {
-      return;
-    }
-
+    if (!confirm('Versicherer wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden!')) return;
     try {
       const response = await fetch(`http://localhost:5000/api/versicherer/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
       });
-
       if (response.ok) {
         alert('✅ Versicherer gelöscht!');
         navigate('/versicherer');
@@ -90,7 +84,6 @@ const VersichererDetail = () => {
   return (
     <div className="versicherer-detail-wrapper">
       {isNew ? (
-        // NEU: Nur Formular
         <div className="page-container">
           <div className="details-header">
             <div className="header-left">
@@ -98,174 +91,84 @@ const VersichererDetail = () => {
               <h1>{title}</h1>
             </div>
           </div>
-
           {error && <div className="error-message">{error}</div>}
-
           <div className="details-page-content">
-            <VersichererForm 
-              versicherer={null}
-              isNew={true}
-              onSaveSuccess={handleSaveSuccess}
-            />
+            <VersichererForm versicherer={null} isNew={true} onSaveSuccess={handleSaveSuccess} />
           </div>
         </div>
       ) : (
-        // BESTEHEND: Mit Tabs
         <div className="page-container">
-          {/* HEADER */}
           <div className="details-header">
             <div className="header-left">
               <button className="back-button" onClick={handleBack}>← Zurück</button>
               <h1>{title}</h1>
             </div>
             <div className="header-actions">
-              <button className="button-edit-small" onClick={() => setShowEditForm(true)}>
-                Bearbeiten
-              </button>
-              <button className="button-delete-small" onClick={handleDeleteVersicherer}>
-                Löschen
-              </button>
+              <button className="button-edit-small" onClick={() => setShowEditForm(true)}>Bearbeiten</button>
+              <button className="button-delete-small" onClick={handleDeleteVersicherer}>Löschen</button>
             </div>
           </div>
 
-          {/* TAB NAVIGATION - ZWISCHEN Header und Content */}
           <div className="tab-navigation">
-            <button 
-              className={`tab-btn ${activeTab === 'stammdaten' ? 'active' : ''}`}
-              onClick={() => setActiveTab('stammdaten')}
-            >
-              📍 Stammdaten
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'ansprechpersonen' ? 'active' : ''}`}
-              onClick={() => setActiveTab('ansprechpersonen')}
-            >
-              👥 Ansprechpersonen
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'kontakte' ? 'active' : ''}`}
-              onClick={() => setActiveTab('kontakte')}
-            >
-              👔 Kontakte
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'dateien' ? 'active' : ''}`}
-              onClick={() => setActiveTab('dateien')}
-            >
-              📄 Dateien
-            </button>
+            <button className={`tab-btn ${activeTab === 'stammdaten' ? 'active' : ''}`} onClick={() => setActiveTab('stammdaten')}>📍 Stammdaten</button>
+            <button className={`tab-btn ${activeTab === 'ansprechpersonen' ? 'active' : ''}`} onClick={() => setActiveTab('ansprechpersonen')}>👥 Ansprechpersonen</button>
+            <button className={`tab-btn ${activeTab === 'kontakte' ? 'active' : ''}`} onClick={() => setActiveTab('kontakte')}>👔 Kontakte</button>
+            <button className={`tab-btn ${activeTab === 'dateien' ? 'active' : ''}`} onClick={() => setActiveTab('dateien')}>📄 Dateien</button>
           </div>
 
-          {/* EDIT MODAL */}
           {showEditForm && (
             <div className="modal-overlay">
               <div className="modal-content">
                 <button className="modal-close" onClick={() => setShowEditForm(false)}>✕</button>
-                <VersichererForm 
-                  versicherer={versicherer}
-                  isNew={false}
-                  onSaveSuccess={handleSaveSuccess}
-                />
+                <VersichererForm versicherer={versicherer} isNew={false} onSaveSuccess={handleSaveSuccess} />
               </div>
             </div>
           )}
 
-          {/* PAGE CONTENT */}
           <div className="details-page-content">
             {error && <div className="error-message">{error}</div>}
 
-            {/* STAMMDATEN SECTION */}
             {activeTab === 'stammdaten' && (
               <>
-                {/* Grundinfo */}
                 <div className="form-section">
                   <h3>📍 Grundinformationen</h3>
                   <div className="form-row-3">
-                    <div className="detail-field">
-                      <label>Name</label>
-                      <p>{versicherer?.name || '-'}</p>
-                    </div>
-                    <div className="detail-field">
-                      <label>Website</label>
-                      <p>{versicherer?.website ? <a href={versicherer.website} target="_blank" rel="noopener noreferrer">🔗 {versicherer.website}</a> : '-'}</p>
-                    </div>
-                    <div className="detail-field">
-                      <label>Telefon</label>
-                      <p>{versicherer?.telefon || '-'}</p>
-                    </div>
+                    <div className="detail-field"><label>Name</label><p>{versicherer?.name || '-'}</p></div>
+                    <div className="detail-field"><label>Website</label><p>{versicherer?.website ? <a href={versicherer.website} target="_blank" rel="noopener noreferrer">🔗 {versicherer.website}</a> : '-'}</p></div>
+                    <div className="detail-field"><label>Telefon</label><p>{versicherer?.telefon || '-'}</p></div>
                   </div>
                 </div>
-
-                {/* Adresse */}
                 <div className="form-section">
                   <h3>🏠 Adresse</h3>
                   <div className="form-row-3">
-                    <div className="detail-field">
-                      <label>Strasse</label>
-                      <p>{versicherer?.strasse || '-'}</p>
-                    </div>
-                    <div className="detail-field">
-                      <label>Hausnummer</label>
-                      <p>{versicherer?.hausnummer || '-'}</p>
-                    </div>
-                    <div className="detail-field">
-                      <label>Ort</label>
-                      <p>{versicherer?.ort || '-'}</p>
-                    </div>
+                    <div className="detail-field"><label>Strasse</label><p>{versicherer?.strasse || '-'}</p></div>
+                    <div className="detail-field"><label>Hausnummer</label><p>{versicherer?.hausnummer || '-'}</p></div>
+                    <div className="detail-field"><label>Ort</label><p>{versicherer?.ort || '-'}</p></div>
                   </div>
                   <div className="form-row-3">
-                    <div className="detail-field">
-                      <label>Postleitzahl</label>
-                      <p>{versicherer?.plz || '-'}</p>
-                    </div>
-                    <div className="detail-field">
-                      <label>Land</label>
-                      <p>{versicherer?.land || '-'}</p>
-                    </div>
+                    <div className="detail-field"><label>Postleitzahl</label><p>{versicherer?.plz || '-'}</p></div>
+                    <div className="detail-field"><label>Land</label><p>{versicherer?.land || '-'}</p></div>
                   </div>
                 </div>
-
-                {/* Status */}
                 <div className="form-section">
                   <h3>📊 Status & Verwaltung</h3>
                   <div className="form-row-2">
-                    <div className="detail-field">
-                      <label>Status</label>
-                      <p>{versicherer?.status === 'Aktiv' ? '🟢 Aktiv' : '⚫ Inaktiv'}</p>
-                    </div>
-                    <div className="detail-field">
-                      <label>ZAV seit</label>
-                      <p>{versicherer?.zav_seit ? new Date(versicherer.zav_seit).toLocaleDateString('de-CH') : '-'}</p>
-                    </div>
+                    <div className="detail-field"><label>Status</label><p>{versicherer?.status === 'Aktiv' ? '🟢 Aktiv' : '⚫ Inaktiv'}</p></div>
+                    <div className="detail-field"><label>ZAV seit</label><p>{versicherer?.zav_seit ? new Date(versicherer.zav_seit).toLocaleDateString('de-CH') : '-'}</p></div>
                   </div>
                 </div>
-
-                {/* Notizen */}
                 {versicherer?.notizen && (
                   <div className="form-section">
                     <h3>📝 Notizen</h3>
-                    <div className="detail-field">
-                      <p style={{ whiteSpace: 'pre-wrap' }}>{versicherer.notizen}</p>
-                    </div>
+                    <div className="detail-field"><p style={{ whiteSpace: 'pre-wrap' }}>{versicherer.notizen}</p></div>
                   </div>
                 )}
               </>
             )}
 
-            {/* ANSPRECHPERSONEN TAB */}
-            {activeTab === 'ansprechpersonen' && versicherer && (
-              <AnsprechpersonenTab versicherer={versicherer} />
-            )}
-
-            {/* KONTAKTE TAB */}
-            {activeTab === 'kontakte' && versicherer && (
-              <KontakteTab versicherer={versicherer} />
-            )}
-
-            {/* DATEIEN TAB */}
-            {activeTab === 'dateien' && versicherer && (
-              <DateienTab versicherer={versicherer} />
-            )}
+            {activeTab === 'ansprechpersonen' && versicherer && <AnsprechpersonenTab versicherer={versicherer} />}
+            {activeTab === 'kontakte' && versicherer && <KontakteTab versicherer={versicherer} />}
+            {activeTab === 'dateien' && versicherer && <DateienTab versicherer={versicherer} />}
           </div>
         </div>
       )}

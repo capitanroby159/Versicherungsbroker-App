@@ -10,13 +10,14 @@ const KontakteTab = ({ versicherer }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAktiv, setFilterAktiv] = useState(true);
 
-  useEffect(() => {
-    loadKontakte();
-  }, [versicherer.id]);
+  useEffect(() => { loadKontakte(); }, [versicherer.id]);
 
   const loadKontakte = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/versicherer/${versicherer.id}/kontakte`);
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://localhost:5000/api/versicherer/${versicherer.id}/kontakte`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const data = await response.json();
       setKontakte(data);
       setLoading(false);
@@ -28,19 +29,15 @@ const KontakteTab = ({ versicherer }) => {
 
   const handleDeleteKontakt = async (kontaktId) => {
     if (!window.confirm('Wirklich löschen?')) return;
-
     try {
       const response = await fetch(`http://localhost:5000/api/versicherer/kontakt/${kontaktId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` }
       });
-
       if (!response.ok) throw new Error('Fehler beim Löschen');
-
       setKontakte(prev => prev.filter(k => k.id !== kontaktId));
       alert('Kontakt gelöscht');
-    } catch (err) {
-      alert('Fehler: ' + err.message);
-    }
+    } catch (err) { alert('Fehler: ' + err.message); }
   };
 
   const handleSaveSuccess = () => {
@@ -52,13 +49,11 @@ const KontakteTab = ({ versicherer }) => {
   if (loading) return <div>Lädt...</div>;
 
   const filtered = kontakte.filter(k => {
-    const matchesSearch = !searchTerm || 
-      k.vorname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      k.nachname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      k.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = !searchTerm ||
+      (k.vorname || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (k.nachname || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (k.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = !filterAktiv || k.status === 'Aktiv';
-    
     return matchesSearch && matchesFilter;
   });
 
@@ -66,54 +61,21 @@ const KontakteTab = ({ versicherer }) => {
     <div className="kontakte-tab">
       <div className="kontakte-header">
         <h2>👔 Kontakte</h2>
-        <button 
-          className="btn-primary"
-          onClick={() => setShowForm(true)}
-        >
-          + Neuer Kontakt
-        </button>
+        <button className="btn-primary" onClick={() => setShowForm(true)}>+ Neuer Kontakt</button>
       </div>
-
       <div className="kontakte-filter">
-        <input
-          type="text"
-          placeholder="Suchen nach Name oder Email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
+        <input type="text" placeholder="Suchen nach Name oder Email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="search-input" />
         <label>
-          <input 
-            type="checkbox" 
-            checked={filterAktiv}
-            onChange={(e) => setFilterAktiv(e.target.checked)}
-          />
+          <input type="checkbox" checked={filterAktiv} onChange={(e) => setFilterAktiv(e.target.checked)} />
           Nur Aktive
         </label>
       </div>
-
       {showForm ? (
-        <KontaktForm 
-          versicherer={versicherer}
-          kontakt={selectedKontakt}
-          onSaveSuccess={handleSaveSuccess}
-          onCancel={() => {
-            setShowForm(false);
-            setSelectedKontakt(null);
-          }}
-        />
+        <KontaktForm versicherer={versicherer} kontakt={selectedKontakt} onSaveSuccess={handleSaveSuccess} onCancel={() => { setShowForm(false); setSelectedKontakt(null); }} />
       ) : (
         <table className="kontakte-table">
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Position</th>
-              <th>Art</th>
-              <th>Email</th>
-              <th>Telefon</th>
-              <th>Status</th>
-              <th>Aktionen</th>
-            </tr>
+            <tr><th>Name</th><th>Position</th><th>Art</th><th>Email</th><th>Telefon</th><th>Status</th><th>Aktionen</th></tr>
           </thead>
           <tbody>
             {filtered.map(k => (
@@ -123,37 +85,17 @@ const KontakteTab = ({ versicherer }) => {
                 <td>{k.art}</td>
                 <td>{k.email}</td>
                 <td>{k.telefon}</td>
+                <td><span className={`status ${k.status.toLowerCase()}`}>{k.status === 'Aktiv' ? '🟢' : '⚫'} {k.status}</span></td>
                 <td>
-                  <span className={`status ${k.status.toLowerCase()}`}>
-                    {k.status === 'Aktiv' ? '🟢' : '⚫'} {k.status}
-                  </span>
-                </td>
-                <td>
-                  <button 
-                    className="btn-small"
-                    onClick={() => {
-                      setSelectedKontakt(k);
-                      setShowForm(true);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button 
-                    className="btn-small btn-danger"
-                    onClick={() => handleDeleteKontakt(k.id)}
-                  >
-                    Löschen
-                  </button>
+                  <button className="btn-small" onClick={() => { setSelectedKontakt(k); setShowForm(true); }}>Edit</button>
+                  <button className="btn-small btn-danger" onClick={() => handleDeleteKontakt(k.id)}>Löschen</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-
-      <p className="contact-count">
-        Zeige {filtered.length} von {kontakte.length} Kontakten
-      </p>
+      <p className="contact-count">Zeige {filtered.length} von {kontakte.length} Kontakten</p>
     </div>
   );
 };

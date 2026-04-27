@@ -202,11 +202,7 @@ function KundenTab() {
                   <td>
                     <button 
                       className="kunde-name-link"
-                      onClick={() => navigate(
-                        kunde.kundentyp === 'Firma' 
-                          ? `/kunden/firma/${kunde.id}` 
-                          : `/kunden/${kunde.id}`
-                      )}
+                      onClick={() => navigate(`/kunden/${kunde.id}`)}
                     >
                       {kunde.kundentyp === 'Firma' && kunde.firma_name
                         ? kunde.firma_name

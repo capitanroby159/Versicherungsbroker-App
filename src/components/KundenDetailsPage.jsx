@@ -22,7 +22,6 @@ function KundenDetailsPage() {
     try {
       setLoading(true)
       setError(null)
-      
       const token = localStorage.getItem('auth_token')
       const response = await fetch(`http://localhost:5000/api/kunden/${id}`, {
         headers: {
@@ -30,45 +29,13 @@ function KundenDetailsPage() {
           'Content-Type': 'application/json'
         }
       })
-
-      if (!response.ok) {
-        throw new Error('Kunde nicht gefunden')
-      }
-
+      if (!response.ok) throw new Error('Kunde nicht gefunden')
       const data = await response.json()
-      console.log('✅ Kunde geladen:', data)
       setKunde(data)
     } catch (error) {
-      console.error('❌ Error fetching kunde:', error.message)
       setError(error.message)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleSaveKunde = async (kundeData) => {
-    try {
-      const token = localStorage.getItem('auth_token')
-      const response = await fetch(`http://localhost:5000/api/kunden/${kundeData.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(kundeData)
-      })
-
-      const data = await response.json()
-      if (response.ok) {
-        alert('✅ Kunde aktualisiert!')
-        setShowEditForm(false)
-        fetchKunde()
-      } else {
-        alert('❌ Fehler: ' + (data.message || data.error))
-      }
-    } catch (error) {
-      console.error('❌ Error saving kunde:', error)
-      alert('❌ Fehler beim Speichern: ' + error.message)
     }
   }
 
@@ -87,36 +54,28 @@ function KundenDetailsPage() {
     }
   }
 
+  const isFirma = kunde?.kundentyp === 'Firma'
+  const displayName = isFirma
+    ? kunde?.firma_name
+    : `${kunde?.vorname || ''} ${kunde?.nachname || ''}`.trim()
+
   if (loading) {
     return (
       <div className="details-page-wrapper">
         <div className="page-container">
-          <div className="loading">⏳ Lade Kundendetails...</div>
+          <div className="loading">⏳ Lade Details...</div>
         </div>
       </div>
     )
   }
 
-  if (error) {
+  if (error || !kunde) {
     return (
       <div className="details-page-wrapper">
         <div className="page-container">
           <div className="error-container">
-            <p>❌ {error}</p>
-            <button className="button-back" onClick={() => navigate('/kunden')}>← Zurück zur Kundenliste</button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!kunde) {
-    return (
-      <div className="details-page-wrapper">
-        <div className="page-container">
-          <div className="error-container">
-            <p>❌ Kunde nicht gefunden</p>
-            <button className="button-back" onClick={() => navigate('/kunden')}>← Zurück zur Kundenliste</button>
+            <p>❌ {error || 'Kunde nicht gefunden'}</p>
+            <button className="button-back" onClick={() => navigate('/')}>← Zurück zur Kundenliste</button>
           </div>
         </div>
       </div>
@@ -127,13 +86,11 @@ function KundenDetailsPage() {
     <div className="details-page-wrapper">
       <div className="page-container">
 
-        {/* ============================================================ */}
         {/* HEADER */}
-        {/* ============================================================ */}
         <div className="details-header">
           <div className="header-left">
-            <button className="back-button" onClick={() => navigate('/kunden')}>← Zurück</button>
-            <h1>{kunde.vorname} {kunde.nachname}</h1>
+            <button className="back-button" onClick={() => navigate('/')}>← Zurück</button>
+            <h1>{displayName}</h1>
             <div className="mandat-links-container">
               {kunde.mandat_url && (
                 <a href={kunde.mandat_url} target="_blank" rel="noopener noreferrer" className="mandat-link-inline">
@@ -154,15 +111,13 @@ function KundenDetailsPage() {
           </div>
         </div>
 
-        {/* ============================================================ */}
         {/* TAB MENU */}
-        {/* ============================================================ */}
         <div className="tabs-menu">
           <button
             className={`tab-button ${activeTab === 'übersicht' ? 'active' : ''}`}
             onClick={() => setActiveTab('übersicht')}
           >
-            👤 Übersicht
+            {isFirma ? '🏢' : '👤'} Übersicht
           </button>
           <button
             className={`tab-button ${activeTab === 'policen' ? 'active' : ''}`}
@@ -182,7 +137,6 @@ function KundenDetailsPage() {
           >
             ⚠️ Schadenfälle
           </button>
-          {/* ✅ FIX 1+2: Key und Label korrigiert */}
           <button
             className={`tab-button ${activeTab === 'zeiterfassung' ? 'active' : ''}`}
             onClick={() => setActiveTab('zeiterfassung')}
@@ -191,13 +145,10 @@ function KundenDetailsPage() {
           </button>
         </div>
 
-        {/* ============================================================ */}
-        {/* TAB CONTENT - ÜBERSICHT */}
-        {/* ============================================================ */}
-        {activeTab === 'übersicht' && (
+        {/* TAB: ÜBERSICHT — PRIVATPERSON */}
+        {activeTab === 'übersicht' && !isFirma && (
           <div className="details-page-content">
 
-            {/* PERSÖNLICH */}
             <div className="form-section">
               <h3>👤 Persönlich</h3>
               <div className="form-row-3">
@@ -236,7 +187,6 @@ function KundenDetailsPage() {
               </div>
             </div>
 
-            {/* FAMILIE */}
             <div className="form-section">
               <h3>👨‍👩‍👧‍👦 Familie</h3>
 
@@ -264,18 +214,11 @@ function KundenDetailsPage() {
 
               <div className="kinder-section">
                 <div className="kinder-header">
-                  <h4>
-                    👶 Kinder {kunde.kinder && kunde.kinder.length > 0 ? `(${kunde.kinder.length})` : ''}
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => setShowEditForm(true)}
-                    className="kinder-add-button"
-                  >
+                  <h4>👶 Kinder {kunde.kinder && kunde.kinder.length > 0 ? `(${kunde.kinder.length})` : ''}</h4>
+                  <button type="button" onClick={() => setShowEditForm(true)} className="kinder-add-button">
                     + Kind
                   </button>
                 </div>
-
                 {kunde.kinder && kunde.kinder.length > 0 ? (
                   <div className="kinder-list">
                     {kunde.kinder.map((kind, index) => (
@@ -294,7 +237,6 @@ function KundenDetailsPage() {
               </div>
             </div>
 
-            {/* ADRESSE */}
             <div className="form-section">
               <h3>🏠 Adresse</h3>
               <div className="form-row-3">
@@ -319,10 +261,8 @@ function KundenDetailsPage() {
               </div>
             </div>
 
-            {/* KONTAKT */}
             <div className="form-section">
               <h3>📞 Kontakt</h3>
-
               <div className="contact-group">
                 <h4>📧 E-Mails</h4>
                 {kunde.emails && Array.isArray(kunde.emails) && kunde.emails.length > 0 ? (
@@ -332,9 +272,7 @@ function KundenDetailsPage() {
                       const typ = typeof item === 'object' ? item.typ : 'Privat'
                       return (
                         <div key={index} className="contact-row">
-                          <a href={`mailto:${email}`} className="contact-link">
-                            {email}
-                          </a>
+                          <a href={`mailto:${email}`} className="contact-link">{email}</a>
                           <span className="contact-badge">{typ}</span>
                         </div>
                       )
@@ -344,7 +282,6 @@ function KundenDetailsPage() {
                   <p className="no-data">Keine E-Mails erfasst</p>
                 )}
               </div>
-
               <div className="contact-group">
                 <h4>📱 Telefone</h4>
                 {kunde.telefone && Array.isArray(kunde.telefone) && kunde.telefone.length > 0 ? (
@@ -356,9 +293,7 @@ function KundenDetailsPage() {
                       return (
                         <div key={index} className="contact-row">
                           <div className="phone-actions">
-                            <a href={`tel:${telefon.replace(/\s/g, '')}`} className="contact-link">
-                              ☎️ Anrufen
-                            </a>
+                            <a href={`tel:${telefon.replace(/\s/g, '')}`} className="contact-link">☎️ Anrufen</a>
                             {isWhatsApp && (
                               <a
                                 href={`https://wa.me/${telefon.replace(/[^\d+]/g, '')}`}
@@ -382,7 +317,6 @@ function KundenDetailsPage() {
               </div>
             </div>
 
-            {/* ARBEIT */}
             {(kunde.ausbildung || kunde.arbeitgeber_name || kunde.position) && (
               <div className="form-section">
                 <h3>💼 Arbeit</h3>
@@ -409,28 +343,162 @@ function KundenDetailsPage() {
               </div>
             )}
 
-            {/* NOTIZEN */}
             {kunde.besonderheiten && (
               <div className="form-section">
                 <h3>📝 Notizen</h3>
-                <div className="notes-box">
-                  {kunde.besonderheiten}
-                </div>
+                <div className="notes-box">{kunde.besonderheiten}</div>
               </div>
             )}
           </div>
         )}
 
-        {/* ============================================================ */}
-        {/* TAB CONTENT - POLICEN */}
-        {/* ============================================================ */}
+        {/* TAB: ÜBERSICHT — FIRMA */}
+        {activeTab === 'übersicht' && isFirma && (
+          <div className="details-page-content">
+
+            <div className="form-section">
+              <h3>🏢 Firmeninformationen</h3>
+              <div className="form-row-3">
+                <div className="detail-field">
+                  <label>Firmenname</label>
+                  <p>{kunde.firma_name || '-'}</p>
+                </div>
+                <div className="detail-field">
+                  <label>Gründungsdatum</label>
+                  <p>{formatDateForDisplay(kunde.gruendungsdatum)}</p>
+                </div>
+                <div className="detail-field">
+                  <label>UID</label>
+                  <p>{kunde.uid || '-'}</p>
+                </div>
+              </div>
+              <div className="form-row-3">
+                <div className="detail-field">
+                  <label>Mehrwertsteuer</label>
+                  <p>{kunde.mehrwertsteuer === 'ja' ? 'Ja' : 'Nein'}</p>
+                </div>
+                <div className="detail-field">
+                  <label>NOGA-Code</label>
+                  <p>{kunde.noga_code || '-'}</p>
+                </div>
+                <div className="detail-field">
+                  <label>Status</label>
+                  <p>
+                    <span className={`status-badge ${(kunde.status || 'Aktiv').toLowerCase()}`}>
+                      {kunde.status || 'Aktiv'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              {kunde.taetigkeitsbeschrieb && (
+                <div className="detail-field full-width">
+                  <label>Tätigkeitsbeschrieb</label>
+                  <p>{kunde.taetigkeitsbeschrieb}</p>
+                </div>
+              )}
+              <div className="detail-field full-width">
+                <label>IBAN</label>
+                <p>{kunde.iban || '-'}</p>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <h3>🏠 Adresse</h3>
+              <div className="form-row-3">
+                <div className="detail-field">
+                  <label>Strasse & Hausnummer</label>
+                  <p>{kunde.adresse || '-'}</p>
+                </div>
+                <div className="detail-field">
+                  <label>PLZ</label>
+                  <p>{kunde.plz || '-'}</p>
+                </div>
+                <div className="detail-field">
+                  <label>Ort</label>
+                  <p>{kunde.ort || '-'}</p>
+                </div>
+              </div>
+              <div className="form-row-3">
+                <div className="detail-field">
+                  <label>Kanton</label>
+                  <p>{kunde.kanton || '-'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <h3>📞 Kontakt</h3>
+              <div className="contact-group">
+                <h4>📧 E-Mails</h4>
+                {kunde.emails && kunde.emails.length > 0 ? (
+                  <div className="contact-items">
+                    {kunde.emails.map((item, index) => {
+                      const email = typeof item === 'object' ? item.email : item
+                      const typ = typeof item === 'object' ? item.typ : 'Geschäft'
+                      return (
+                        <div key={index} className="contact-row">
+                          <a href={`mailto:${email}`} className="contact-link">{email}</a>
+                          <span className="contact-badge">{typ}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p className="no-data">Keine E-Mails erfasst</p>
+                )}
+              </div>
+              <div className="contact-group">
+                <h4>📱 Telefone</h4>
+                {kunde.telefone && kunde.telefone.length > 0 ? (
+                  <div className="contact-items">
+                    {kunde.telefone.map((item, index) => {
+                      const telefon = typeof item === 'object' ? item.telefon : item
+                      const typ = typeof item === 'object' ? item.typ : 'Geschäft'
+                      return (
+                        <div key={index} className="contact-row">
+                          <a href={`tel:${telefon}`} className="contact-link">☎️ {telefon}</a>
+                          <span className="contact-badge">{typ}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p className="no-data">Keine Telefone erfasst</p>
+                )}
+              </div>
+            </div>
+
+            {kunde.ansprechpersonen && kunde.ansprechpersonen.length > 0 && (
+              <div className="form-section">
+                <h3>👥 Ansprechpersonen</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {kunde.ansprechpersonen.map((ap) => (
+                    <div key={ap.id} className="ansprechperson-card">
+                      <p>{ap.person_name}</p>
+                      {ap.position && <p><strong>Position:</strong> {ap.position}</p>}
+                      {ap.email && <p><strong>Email:</strong> <a href={`mailto:${ap.email}`}>{ap.email}</a></p>}
+                      {ap.telefon && <p><strong>Telefon:</strong> <a href={`tel:${ap.telefon}`}>{ap.telefon}</a></p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {kunde.besonderheiten && (
+              <div className="form-section">
+                <h3>⭐ Besonderheiten</h3>
+                <div className="notes-box">{kunde.besonderheiten}</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB: POLICEN */}
         {activeTab === 'policen' && (
           <PolicenTab kundeId={kunde.id} kundeTyp={kunde.kundentyp} />
         )}
 
-        {/* ============================================================ */}
-        {/* TAB CONTENT - IMMOBILIEN */}
-        {/* ============================================================ */}
+        {/* TAB: IMMOBILIEN */}
         {activeTab === 'immobilien' && (
           <div className="details-page-content">
             <div className="form-section">
@@ -439,9 +507,7 @@ function KundenDetailsPage() {
           </div>
         )}
 
-        {/* ============================================================ */}
-        {/* TAB CONTENT - SCHADENFÄLLE */}
-        {/* ============================================================ */}
+        {/* TAB: SCHADENFÄLLE */}
         {activeTab === 'schadenfaelle' && (
           <div className="details-page-content">
             <div className="form-section">
@@ -450,25 +516,20 @@ function KundenDetailsPage() {
           </div>
         )}
 
-        {/* ============================================================ */}
-        {/* TAB CONTENT - ZEITERFASSUNG */}
-        {/* ✅ FIX 3: 'firma' → 'kunde', kundeName korrekt zusammengesetzt */}
-        {/* ============================================================ */}
+        {/* TAB: ZEITERFASSUNG */}
         {activeTab === 'zeiterfassung' && (
           <KundenZeiterfassung
             kundeId={kunde.id}
-            kundeName={`${kunde.vorname} ${kunde.nachname}`}
+            kundeName={displayName}
           />
         )}
 
-        {/* ============================================================ */}
-        {/* EDIT FORM MODAL */}
-        {/* ============================================================ */}
+        {/* EDIT MODAL */}
         {showEditForm && (
           <KundenFormModal
             kunde={kunde}
             onCancel={() => setShowEditForm(false)}
-            onSaveSuccess={handleSaveKunde}
+            onSaveSuccess={() => { setShowEditForm(false); fetchKunde() }}
           />
         )}
 
