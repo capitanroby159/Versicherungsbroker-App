@@ -267,9 +267,8 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
         gebuehren: parseCHF(formData.gebuehren || '0'),
         beginn: formData.beginn || null,
         ende: formData.ende || null,
-        bemerkungen: [formData.bemerkungen, formData.notizen]
-          .filter(Boolean)
-          .join('\n\n---\n\n'),
+        bemerkungen: formData.bemerkungen || null,
+
         // UVG Text-Felder
         uvg_risiko_nr: cleanString(formData.uvg_risiko_nr),
         uvg_art_betrieb: cleanString(formData.uvg_art_betrieb),
@@ -518,7 +517,7 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
             {/* BEMERKUNGEN */}
             <div className="form-group span-3">
               <label>Bemerkungen</label>
-              <textarea name="notizen" value={formData.notizen || ''} onChange={handleInputChange} rows="3" placeholder="Weitere Bemerkungen..." disabled={!isEditMode} />
+              <textarea name="bemerkungen" value={formData.bemerkungen || ''} onChange={handleInputChange} rows="3" placeholder="Weitere Bemerkungen..." disabled={!isEditMode} />
             </div>
 
             {/* UVG SECTION */}
@@ -958,30 +957,11 @@ function PolicenDetailsModal({ police, kundeId, kundeTyp, onClose, onSave }) {
                 {/* TAB CONTENT - DATEIEN */}
                 {rightActiveTab === 'dateien' && (
                   <div className="right-section documents-section">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                      <h4 style={{ margin: 0 }}>📁 Dateien</h4>
-                      {isEditMode && (
-                        <button 
-                          onClick={() => setShowModal(true)}
-                          style={{
-                            padding: '0.3rem 0.6rem',
-                            fontSize: '0.8rem',
-                            backgroundColor: '#1e40af',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '3px',
-                            cursor: 'pointer',
-                            flexShrink: 0
-                          }}
-                        >
-                          + Datei
-                        </button>
-                      )}
-                    </div>
+                    <h4 style={{ margin: '0 0 0.4rem 0' }}>📁 Dateien</h4>
                     <DateienTab policeId={police.id} />
                   </div>
                 )}
-
+                
                 {/* TAB CONTENT - KLAUSELN */}
                 {rightActiveTab === 'klauseln' && (
                   <div className="right-section documents-section">
