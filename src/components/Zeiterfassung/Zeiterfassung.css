@@ -9,6 +9,23 @@
   gap: 16px;
 }
 
+/* ── Rentabilitäts-Karte ── */
+.ze-rentabilitaet-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+.ze-rent-title { font-size: 13px; font-weight: 700; color: #1f2937; margin-bottom: 12px; }
+.ze-rent-grid  { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ze-rent-item  { display: flex; flex-direction: column; gap: 4px; }
+.ze-rent-label { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.4px; }
+.ze-rent-value { font-size: 16px; font-weight: 700; }
+.ze-rent-value.courtage        { color: #059669; }
+.ze-rent-value.kosten          { color: #dc2626; }
+.ze-rent-value.quote.positiv   { color: #166534; }
+.ze-rent-value.quote.negativ   { color: #b91c1c; }
+
 /* ── Header-Bar ── */
 .ze-header {
   display: flex;
@@ -167,7 +184,8 @@
 .ze-art-badge.Anruf        { background: #dbeafe; color: #1e40af; }
 .ze-art-badge.Korrespondenz { background: #fef3c7; color: #92400e; }
 .ze-art-badge.Termin       { background: #dcfce7; color: #166534; }
-.ze-art-badge.Fahrt        { background: #fce7f3; color: #9d174d; }
+.ze-art-badge.Fahrt          { background: #fce7f3; color: #9d174d; }
+.ze-art-badge.Administration { background: #ede9fe; color: #6d28d9; }
 
 /* ── Total-Zeile ── */
 .ze-total-row td {
